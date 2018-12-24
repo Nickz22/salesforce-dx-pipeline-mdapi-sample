@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>APTS_InsertionOrder_RestDocFormat</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>APTS_InsertionOrder_RestDocFormat</shortDescription>
+        <value>DOC</value>
+    </labels>
+    <labels>
+        <fullName>APTS_InsertionOrder_Template</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>APTS InsertionOrder Template</shortDescription>
+        <value>a0e0y00000BuTEI</value>
+    </labels>
+    <labels>
+        <fullName>AccountID</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>AccountID</shortDescription>
+        <value>001</value>
+    </labels>
+    <labels>
+        <fullName>Activate_Experiment_Message</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Activate Experiment Message</shortDescription>
+        <value>Activating Experiment. You will be redirected momentarily to the Study Group. Make sure to check the Sync Status for failures.</value>
+    </labels>
+    <labels>
+        <fullName>ApttusTestingProfile</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Apttus Testing Profile name</shortDescription>
+        <value>Apttus General User</value>
+    </labels>
+    <labels>
+        <fullName>Audit_Preparer_Id</fullName>
+        <categories>Audit</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Audit Preparer Id</shortDescription>
+        <value>0050y00000E0CuRAAV</value>
+    </labels>
+    <labels>
+        <fullName>Business_Manager_Link</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Business Manager Link</shortDescription>
+        <value>https://ads.snapchat.com/setup?_sid=</value>
+    </labels>
+    <labels>
+        <fullName>Business_Manager_Org_Link</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Business Manager Org Link</shortDescription>
+        <value>https://snap-central.appspot.com/</value>
+    </labels>
+    <labels>
+        <fullName>CIHelper_Err_Msg_Circleci_Error</fullName>
+        <categories>CI Helper</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>CIHelper Error Message: Circleci Error</shortDescription>
+        <value>An unexpected error occurred communicating with CircleCI.</value>
+    </labels>
+    <labels>
+        <fullName>CIHelper_Err_Msg_Commit_Build_Started</fullName>
+        <categories>CI Helper</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>CIHelper Error Message: Commit Build Started</shortDescription>
+        <value>Your changes are being downloaded from your org and committed to Github. This process generally takes 5-10 minutes.</value>
+    </labels>
+    <labels>
+        <fullName>CIHelper_Err_Msg_Commit_Message_Blank</fullName>
+        <categories>CI Helper</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>CIHelper Error Message: Commit Message Blank</shortDescription>
+        <value>Please enter a commit message specific to the particular changes you&#39;re making now and try again.</value>
+    </labels>
+    <labels>
+        <fullName>CIHelper_Err_Msg_Deploy_Token_Not_Set</fullName>
+        <categories>CI Helper</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>CIHelper Error Message: Deploy Token Not Set</shortDescription>
+        <value>SFDC Deployment user&#39;s token for this sandbox is not set in CircleCI Environment Variables.</value>
+    </labels>
+    <labels>
+        <fullName>CIHelper_Err_Msg_Github_Token_Not_Set</fullName>
+        <categories>CI Helper</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>CIHelper Error Message: Github Token Not Set</shortDescription>
+        <value>Your Github Enterprise user token is not set in CircleCI Environment Variables.</value>
+    </labels>
+    <labels>
+        <fullName>CIHelper_Err_Msg_Invalid_Branch_Name</fullName>
+        <categories>CI Helper</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>CIHelper Error Message: Invalid Branch Name</shortDescription>
+        <value>Please remove any special characters and trailing periods from your JIRA issue description and try again.</value>
+    </labels>
+    <labels>
+        <fullName>CIHelper_Err_Msg_Jira_Description_Blank</fullName>
+        <categories>CI Helper</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>CIHelper Error Message: Jira Description Blank</shortDescription>
+        <value>Please enter the JIRA issue description (without special characters or trailing periods).</value>
+    </labels>
+    <labels>
+        <fullName>CIHelper_Err_Msg_Jira_Issue_Blank</fullName>
+        <categories>CI Helper</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>CIHelper Error Message: Jira Issue Blank</shortDescription>
+        <value>Please enter the JIRA issue number.</value>
+    </labels>
+    <labels>
+        <fullName>CIHelper_Err_Msg_New_Build_Started</fullName>
+        <categories>CI Helper</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>CIHelper Error Message: New Build Started</shortDescription>
+        <value>A new git branch is being created (and if selected, your sandbox is being rebuilt). Don&#39;t make any changes in your sandbox until this process is complete. This process generally takes 5-10 minutes.</value>
+    </labels>
+    <labels>
+        <fullName>Campaign_Id_Missing_On_IO_Error_Message</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Campaign_Id_Missing_On_IO_Error_Message</shortDescription>
+        <value>Campaign Id is missing on IO.</value>
+    </labels>
+    <labels>
+        <fullName>Campaign_Id_Missing_On_IO_Validation_Check</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Campaign Id Missing On IO Validation Check</shortDescription>
+        <value>TRUE</value>
+    </labels>
+    <labels>
+        <fullName>Control_Treatment_Percent_Error</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Control Treatment Percent Error</shortDescription>
+        <value>Control/Treatment percent do not add to 100%. Click on browser back button to return to Study Group.</value>
+    </labels>
+    <labels>
+        <fullName>Discount_Calculation_Error</fullName>
+        <categories>Rate_Card_Service</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Discount Calculation Error</shortDescription>
+        <value>Error occurred while calculating discount.</value>
+    </labels>
+    <labels>
+        <fullName>Duplicate_Id_Error</fullName>
+        <categories>Upfront_Discount</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Duplicate Id Error</shortDescription>
+        <value>Request list has duplicate elements.</value>
+    </labels>
+    <labels>
+        <fullName>Empty_List_Error</fullName>
+        <categories>Upfront_Discount</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Empty List Error</shortDescription>
+        <value>List is empty.</value>
+    </labels>
+    <labels>
+        <fullName>Experiment_Required_For_Study_Type_Error_Message</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Experiment Required For Study Type Error Message</shortDescription>
+        <value>Experiment needs to be set for the associated Study Type.</value>
+    </labels>
+    <labels>
+        <fullName>Experiment_Required_For_Study_Type_Validation_Check</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Experiment Required For Study Type Validation Check</shortDescription>
+        <value>TRUE</value>
+    </labels>
+    <labels>
+        <fullName>Flag_Exception_Channel</fullName>
+        <categories>Pricing Check</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Flag Exception Channel</shortDescription>
+        <value>Takeover</value>
+    </labels>
+    <labels>
+        <fullName>Flag_Exception_Sub_Channel</fullName>
+        <categories>Pricing Check</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Flag Exception Sub Channel</shortDescription>
+        <value>Max Reach,Our Stories (O&amp;O),Our Stories (Partnered),Shows,Promoted Stories - Large Tile,N/A</value>
+    </labels>
+    <labels>
+        <fullName>Flag_Exception_Sub_Product</fullName>
+        <categories>Pricing Check</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Flag Exception Sub Product</shortDescription>
+        <value>Snapcodes</value>
+    </labels>
+    <labels>
+        <fullName>Follow_Org_Success_Msg</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Follow Org Success Msg</shortDescription>
+        <value>Success! You are now following the Organization</value>
+    </labels>
+    <labels>
+        <fullName>Impressions_Count</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Impressions Count</shortDescription>
+        <value>0.50</value>
+    </labels>
+    <labels>
+        <fullName>Impressions_Count_Factor</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Impressions Count Factor</shortDescription>
+        <value>1000</value>
+    </labels>
+    <labels>
+        <fullName>In_Scope_Objects</fullName>
+        <categories>Audit</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>In-Scope Object API Names</shortDescription>
+        <value>Account
+Opportunity
+Insertion_Order__c
+Placement__c
+Apttus__APTS_Agreement__c
+Upfront__c
+Snapchat_Sales_Team__c
+Organization__c
+Ad_Account__c
+Case
+Brand__c
+Upfront_Entity__c</value>
+    </labels>
+    <labels>
+        <fullName>Insertion_Order_Error_Message_Vf_Page</fullName>
+        <categories>Insertion Order</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Insertion Order Page Error Message</shortDescription>
+        <value>Populate Registered Legal Name on Agency (Bill To) Account and/or Advertiser Account to proceed.</value>
+    </labels>
+    <labels>
+        <fullName>Invalid_Request_Id</fullName>
+        <categories>Upfront_Discount</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Invalid Request Id</shortDescription>
+        <value>Unable to find Object for the given request Id.</value>
+    </labels>
+    <labels>
+        <fullName>JsonPayloadCleanUpBatch_Size</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>JsonPayloadCleanUpBatch Size</shortDescription>
+        <value>5</value>
+    </labels>
+    <labels>
+        <fullName>Json_Payload_Trigger_Async_Sobject_List</fullName>
+        <categories>Integration Framework</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Json Payload Trigger Async Sobject List</shortDescription>
+        <value>Revenue_Schedule__c,Organization__c</value>
+    </labels>
+    <labels>
+        <fullName>List_Contains_Null</fullName>
+        <categories>Upfront_Discount</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>List Contains Null</shortDescription>
+        <value>List contains null element.</value>
+    </labels>
+    <labels>
+        <fullName>List_Size_Not_Equal</fullName>
+        <categories>Upfront_Discount</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>List Size Not Equal</shortDescription>
+        <value>List size is not equal.</value>
+    </labels>
+    <labels>
+        <fullName>Measurement_Api_Base_Url</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Measurement Api Base Url</shortDescription>
+        <value>https://study.snapads.com</value>
+    </labels>
+    <labels>
+        <fullName>Metadata_Setting_Not_Found</fullName>
+        <categories>Upfront_Discount</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Metadata Setting Not Found</shortDescription>
+        <value>Metadata setting could not be found.</value>
+    </labels>
+    <labels>
+        <fullName>Null_List_Error</fullName>
+        <categories>Upfront_Discount</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Null List Error</shortDescription>
+        <value>List is Null</value>
+    </labels>
+    <labels>
+        <fullName>OppVROverrideProfiles</fullName>
+        <categories>Validation Rule, Profile, Opportunity</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>OppVROverrideProfiles</shortDescription>
+        <value>System Administrator
+API User 
+Revenue Schedule Integration
+Measurement Integration</value>
+    </labels>
+    <labels>
+        <fullName>Opp_Named_Owner</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Opp Named Owner</shortDescription>
+        <value>Named Owner not part of  Snapchat Sales Teams</value>
+    </labels>
+    <labels>
+        <fullName>Opportunity_Split_Percentage</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Opportunity Split Percentage</shortDescription>
+        <value>0.8</value>
+    </labels>
+    <labels>
+        <fullName>Opportunity_Split_Percentage_2</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Opportunity Split Percentage/2</shortDescription>
+        <value>0.4</value>
+    </labels>
+    <labels>
+        <fullName>Organization_Follow_UnFollow_Code_ByPass</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Organization Follow UnFollow Code ByPass</shortDescription>
+        <value>TRUE</value>
+    </labels>
+    <labels>
+        <fullName>Overlay_Split_ID</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Overlay Split ID</shortDescription>
+        <value>1491A00000006fpQAA</value>
+    </labels>
+    <labels>
+        <fullName>Placement_Split_Percentage</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Placement Split Percentage</shortDescription>
+        <value>0.2</value>
+    </labels>
+    <labels>
+        <fullName>Rate_Card_General_Exception_Error</fullName>
+        <categories>Rate_Card_Service</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Rate Card General Exception Error</shortDescription>
+        <value>Exception occurred while calculating Audience Rate Card</value>
+    </labels>
+    <labels>
+        <fullName>Rate_Not_Found</fullName>
+        <categories>Rate_Card_Service</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Rate Not Found</shortDescription>
+        <value>ERROR: Could not find base or holiday rate.</value>
+    </labels>
+    <labels>
+        <fullName>Reprocess_Upfront_On_RS_From_Opportunity</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Reprocess_Upfront_On_RS_From_Opportunity</shortDescription>
+        <value>TRUE</value>
+    </labels>
+    <labels>
+        <fullName>Revenue_Split_ID</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Revenue Split ID</shortDescription>
+        <value>1491A00000006foQAA</value>
+    </labels>
+    <labels>
+        <fullName>Set_Study_Owner_For_Approved_Rejected</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Set Study Owner For Approved Rejected</shortDescription>
+        <value>TRUE</value>
+    </labels>
+    <labels>
+        <fullName>StudyExceptionValidation</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>StudyExceptionValidation</shortDescription>
+        <value>TRUE</value>
+    </labels>
+    <labels>
+        <fullName>Study_Approved_Without_Experiment_Error_Message</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Study Approved Without Experiment Error Message</shortDescription>
+        <value>Please setup the experiment before approving the study.</value>
+    </labels>
+    <labels>
+        <fullName>Study_Approved_Without_Experiment_Validation_Check</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Study Approved Without Experiment Validation Check</shortDescription>
+        <value>TRUE</value>
+    </labels>
+    <labels>
+        <fullName>Study_Group_Ad_Entity_Validation_Check</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Study Group Ad Entity Validation Check</shortDescription>
+        <value>TRUE</value>
+    </labels>
+    <labels>
+        <fullName>Study_Group_Ad_Entity_Validation_Error_Message</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Study Group Ad Entity Validation Error Message</shortDescription>
+        <value>Removal or Swapping of ad entities not allowed for active experiments, Addition of ad entities not allowed for expired experiments.</value>
+    </labels>
+    <labels>
+        <fullName>Study_Group_End_In_Past_Error_Message</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Study Group End In Past Error Message</shortDescription>
+        <value>Study Group cannot be updated once end date is in past.</value>
+    </labels>
+    <labels>
+        <fullName>Study_Group_End_In_Past_Validation_Check</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Study Group End In Past Validation Check</shortDescription>
+        <value>TRUE</value>
+    </labels>
+    <labels>
+        <fullName>Study_Group_Start_Date_Error_Message</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Study Group Start Date Error Message</shortDescription>
+        <value>Start date should be 2 days greater than today.</value>
+    </labels>
+    <labels>
+        <fullName>Study_Group_Start_Date_Validation_Check</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Study Group Start Date Validation Check</shortDescription>
+        <value>FALSE</value>
+    </labels>
+    <labels>
+        <fullName>Study_Study_Group_Date_Range_Error_Msg</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Study Study Group Date Range Error Msg</shortDescription>
+        <value>Study dates cannot be outside Study Group dates.</value>
+    </labels>
+    <labels>
+        <fullName>Study_Study_Group_Date_Range_Validation_Check</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Study Study Group Date Range Validation Check</shortDescription>
+        <value>TRUE</value>
+    </labels>
+    <labels>
+        <fullName>Study_Type_Study_Group_Country_Match_Error_Msg</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Study Type Study Group Country Match Error Message</shortDescription>
+        <value>Study Type country should match Study Group.</value>
+    </labels>
+    <labels>
+        <fullName>Study_Type_Study_Group_Country_Match_Validation_Check</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Study Type Study Group Country Match Validation Check</shortDescription>
+        <value>FALSE</value>
+    </labels>
+    <labels>
+        <fullName>Study_Type_Vendor_Validation_Check</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Study Type Vendor Validation Check</shortDescription>
+        <value>TRUE</value>
+    </labels>
+    <labels>
+        <fullName>Study_Type_Vendor_Validation_Error_Message</fullName>
+        <categories>Measurement_Api</categories>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Study Type Vendor Validation Error Message</shortDescription>
+        <value>Please update the External Partner Id before approving.</value>
+    </labels>
+    <labels>
+        <fullName>USER_NOT_IN_SST</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>USER NOT IN SST</shortDescription>
+        <value>Please ensure there is an AE associated to the Buyer country in Account Sales Team</value>
+    </labels>
+    <labels>
+        <fullName>UnFollow_Org_Success_Msg</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>UnFollow_Org_Success_Msg</shortDescription>
+        <value>Unfollowed</value>
+    </labels>
+</CustomLabels>
