@@ -31,7 +31,7 @@ STAGING_USERNAME="MyTP6"
 PROD_USERNAME="MyTP6"
 
 # Repository with your code
-GITHUB_REPO="wadewegner/salesforce-dx-pipeline-sample"
+GITHUB_REPO="Nickz22/salesforce-dx-pipeline-sample"
 
 ### Setup script
 
