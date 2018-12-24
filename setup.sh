@@ -25,13 +25,13 @@ HEROKU_PROD_APP_NAME="prod$TICKS"
 HEROKU_PIPELINE_NAME="pipeline$TICKS"
 
 # Usernames or aliases of the orgs you're using
-DEV_HUB_USERNAME="MyTP6"
+DEV_HUB_USERNAME="MyTP7"
 DEV_USERNAME="tRCdev"
 STAGING_USERNAME="MyTP6"
 PROD_USERNAME="MyTP6"
 
 # Repository with your code
-GITHUB_REPO="wadewegner/salesforce-dx-pipeline-sample"
+GITHUB_REPO="Nickz22/salesforce-dx-pipeline-sample"
 
 ### Setup script
 
