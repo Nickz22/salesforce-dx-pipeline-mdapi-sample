@@ -14,7 +14,7 @@ set -o nounset    # fail on unset variables
 TICKS=$(echo $(date +%s | cut -b1-13))
 
 # Name of your team (optional)
-HEROKU_TEAM_NAME="appcloud-dev" 
+HEROKU_TEAM_NAME=""
 
 # Name of the Heroku apps you'll use
 HEROKU_DEV_APP_NAME="dev$TICKS"
@@ -25,10 +25,10 @@ HEROKU_PROD_APP_NAME="prod$TICKS"
 HEROKU_PIPELINE_NAME="pipeline$TICKS"
 
 # Usernames or aliases of the orgs you're using
-DEV_HUB_USERNAME="HubOrg"
-DEV_USERNAME="DevOrg"
-STAGING_USERNAME="TestOrg"
-PROD_USERNAME="ProdOrg"
+DEV_HUB_USERNAME="MyTP6"
+DEV_USERNAME="tRCdev"
+STAGING_USERNAME="MyTP6"
+PROD_USERNAME="MyTP6"
 
 # Repository with your code
 GITHUB_REPO="wadewegner/salesforce-dx-pipeline-sample"
@@ -66,8 +66,8 @@ heroku config:set SFDX_AUTH_URL=$devSfdxAuthUrl -a $HEROKU_DEV_APP_NAME
 stagingSfdxAuthUrl=$(sfdx force:org:display --verbose -u $STAGING_USERNAME --json | jq -r .result.sfdxAuthUrl)
 heroku config:set SFDX_AUTH_URL=$stagingSfdxAuthUrl -a $HEROKU_STAGING_APP_NAME
 
-stagingSfdxAuthUrl=$(sfdx force:org:display --verbose -u $PROD_USERNAME --json | jq -r .result.sfdxAuthUrl)
-heroku config:set SFDX_AUTH_URL=$stagingSfdxAuthUrl -a $HEROKU_PROD_APP_NAME
+prodSfdxAuthUrl=$(sfdx force:org:display --verbose -u $PROD_USERNAME --json | jq -r .result.sfdxAuthUrl)
+heroku config:set SFDX_AUTH_URL=$prodSfdxAuthUrl -a $HEROKU_PROD_APP_NAME
 
 # Add buildpacks to apps
 heroku buildpacks:add -i 1 https://github.com/wadewegner/salesforce-cli-buildpack#v3 -a $HEROKU_DEV_APP_NAME
