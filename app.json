@@ -14,7 +14,7 @@
   "buildpacks": [{
     "url": "https://github.com/wadewegner/salesforce-cli-buildpack#v3"
   }, {
-    "url": "https://github.com/Nickz22/salesforce-dx-buildpack"
+    "url": "https://github.com/wadewegner/salesforce-dx-buildpack#v3"
   }],
   "env": {
     "DEV_HUB_SFDX_AUTH_URL": {
