@@ -1,7 +1,6 @@
 {
     "orgName": "wade.wegner Company",
     "edition": "Developer",
-    "namespace": "D_V",
     "orgPreferences" : {
         "enabled": ["S1DesktopEnabled"]
     }
