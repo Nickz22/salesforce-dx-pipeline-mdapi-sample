@@ -17,7 +17,7 @@ TICKS=$(echo $(date +%s | cut -b1-13))
 HEROKU_TEAM_NAME=""
 
 # Name of the Heroku apps you'll use
-HEROKU_DEV_APP_NAME="dev$TICKS"
+HEROKU_DEV_APP_NAME="d$TICKS"
 HEROKU_STAGING_APP_NAME="staging$TICKS"
 HEROKU_PROD_APP_NAME="prod$TICKS"
 
@@ -27,8 +27,8 @@ HEROKU_PIPELINE_NAME="pipeline$TICKS"
 # Usernames or aliases of the orgs you're using
 DEV_HUB_USERNAME="MyTP7"
 DEV_USERNAME="tRCdev"
-STAGING_USERNAME="MyTP6"
-PROD_USERNAME="MyTP6"
+STAGING_USERNAME="MyTP7"
+PROD_USERNAME="MyTP7"
 
 # Repository with your code
 GITHUB_REPO="Nickz22/salesforce-dx-pipeline-sample"
