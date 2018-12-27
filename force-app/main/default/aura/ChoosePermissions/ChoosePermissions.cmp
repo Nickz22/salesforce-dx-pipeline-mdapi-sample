@@ -2,9 +2,21 @@
     <aura:handler name="init" value="{!this}" action="{!c.getPermSetFields}"/>
     <aura:attribute name="permissions" type="List"/>
     <aura:attribute name="value" type="List" />
+    <aura:attribute name="baseURL" type="String"/>
 
-    <lightning:checkboxGroup name="In-Scope Permissions"
-                             label="Choose In-Scope Permissions"
-                             options="{! v.permissions }"
-                             value="{!v.value}"/>
+    <lightning:card>
+        <p>Please complete the following steps <b>in the order listed</b> to ensure the <em>Object Access Check</em> application functions as expected:</p>
+        <ol class="slds-list--ordered">					
+            <li>
+                Create an instance of the custom metadata type <a href="/lightning/setup/CustomMetadata/page?address=%2Fm01%2Fe%3FretURL%3D%252Fm01%253Fsetupid%253DCustomMetadata%2526appLayout%253Dsetup%2526tour%253D%2526isdtp%253Dp1%2526sfdcIFrameOrigin%253Dhttps%25253A%25252F%25252Fconnect-nosoftware-6255-dev-ed.lightning.force.com%2526sfdcIFrameHost%253Dweb%2526nonce%253D98cbdd3cab6c41a4c8e95f4a5de3f2e0e8f7de23a52258f8ecb6a696376df18c%2526ltn_app_id%253D06mJ0000000BKVWIA4%2526clc%253D1%26sObjectName%3DD_V__In_Scope_Object__mdt%26save_new_url%3D%252Fm01%252Fe%253FretURL%253D%25252Fm01%25253Fsetupid%25253DCustomMetadata%252526appLayout%25253Dsetup%252526tour%25253D%252526isdtp%25253Dp1%252526sfdcIFrameOrigin%25253Dhttps%2525253A%2525252F%2525252Fconnect-nosoftware-6255-dev-ed.lightning.force.com%252526sfdcIFrameHost%25253Dweb%252526nonce%25253D98cbdd3cab6c41a4c8e95f4a5de3f2e0e8f7de23a52258f8ecb6a696376df18c%252526ltn_app_id%25253D06mJ0000000BKVWIA4%252526clc%25253D1" target="_blank">In-Scope Objects</a> for each object you'd like included in your access evaluation 
+            </li>
+            <li>
+                Choose which System Permissions you'd like to include in your access evaluation below. Permissions you choose will be added to each user's User_Permission_Snapshot__c record's <b>System Permissions</b> field.
+            </li>
+		</ol>
+        <lightning:checkboxGroup name="In-Scope Permissions"
+                                label="Permission Selection"
+                                options="{! v.permissions }"
+                                value="{!v.value}"/>
+    </lightning:card>
 </aura:component>	
