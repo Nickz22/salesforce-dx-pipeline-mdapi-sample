@@ -71,7 +71,7 @@ public class InitAuditUtility {
 		for(String label : objLabels){
 
 			// this will hold read, edit, delete, view/modify all info  
-			new Map<String, String> accessMap = new Map<String, String>();
+			Map<String, String> accessMap = new Map<String, String>();
 
 			// id this map via the obj label
 			allAccessMaps.put(label, accessMap);
