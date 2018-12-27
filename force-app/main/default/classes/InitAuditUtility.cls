@@ -1,5 +1,7 @@
 public class InitAuditUtility {
 
+	public class utilException extends Exception {}
+
 	// init in-scope object labels
 	static final List<String> objApiNames = getInScopeApiNames();
 	static final List<String> objLabels = getInScopeLabels();
@@ -12,11 +14,23 @@ public class InitAuditUtility {
      */
 	public static List<ObjectPermissions> getAllObjectPermissions(){
 
-		for(In_Scope_Audit_Object__mdt inScopeObject : [SELECT Label, Api_Name__c FROM In_Scope_Audit_Object__mdt]){
+		// pretty sure we can remove this as List<String> is being set via methods
+		List<In_Scope_Object__mdt> scope = [SELECT Label, Api_Name__c FROM In_Scope_Object__mdt];
 
-			objLabels.add(inScopeObject.Label);
-			objApiNames.add(inScopeObject.Api_Name__c);
+		if(scope.size() > 0){
+
+			for(In_Scope_Object__mdt inScopeObject : scope){
+
+				objLabels.add(inScopeObject.Label);
+				objApiNames.add(inScopeObject.Api_Name__c);
+			}
+
+		}else{
+
+			throw new utilException(System.Label.noScopeErrorMsg);
+
 		}
+
 		/*
 		** Find any ObjectPermission where ParentId == PermissionSetAssignment.PermissionSetId
 		*/
@@ -28,7 +42,7 @@ public class InitAuditUtility {
 														AND
 														PermissionsRead = true
 														AND
-											 		   SobjectType IN: objApiNames];
+											 		    SobjectType IN: objApiNames];
 
 
 		return allObjectPermissions;
@@ -39,7 +53,7 @@ public class InitAuditUtility {
    * @author          Nick Zozaya
      * @description     Method to retrieve Map of User.Id to ObjectPermissions
    * @return          Map<Map<String,String>, List<Map<String, String>>>
-     * @param           Set<String> revieweeIds
+     * @param           List<ObjectPermissions> allObjectPermissions, List<PermissionSetAssignment> listPermSetAssignments, Map<Map<String,String>, List<Map<String, String>>> nameByPermissionMap
      */
 	public static Map<Map<String,String>, List<Map<String, String>>> findUarUserAccess(List<ObjectPermissions> allObjectPermissions, List<PermissionSetAssignment> listPermSetAssignments, Map<Map<String,String>, List<Map<String, String>>> nameByPermissionMap){
 		
@@ -121,11 +135,19 @@ public class InitAuditUtility {
      */
      public static List<String> getInScopeLabels(){
 
-     	List<String> objLabels = new List<String>();
+		List<String> objLabels = new List<String>();
+		
+     	List<In_Scope_Object__mdt> scope = [SELECT Label, Api_Name__c FROM In_Scope_Object__mdt];
 
-     	for(In_Scope_Audit_Object__mdt inScopeObject : [SELECT Label, Api_Name__c FROM In_Scope_Audit_Object__mdt]){
+		if(scope.size() > 0){
 
-			objLabels.add(inScopeObject.Label);
+			for(In_Scope_Object__mdt inScopeObject : scope){
+
+				objLabels.add(inScopeObject.Label);
+			}
+		}else{
+			
+			throw new utilException(System.Label.noScopeErrorMsg);
 		}
 
 		return objLabels;
@@ -138,13 +160,22 @@ public class InitAuditUtility {
      * @param           
      */
      public static List<String> getInScopeApiNames(){
+		
+		List<String> objApiNames = new List<String>();
 
-     	List<String> objApiNames = new List<String>();
+     	List<In_Scope_Object__mdt> scope = [SELECT Label, Api_Name__c FROM In_Scope_Object__mdt];
 
-     	for(In_Scope_Audit_Object__mdt inScopeObject : [SELECT Label, Api_Name__c FROM In_Scope_Audit_Object__mdt]){
+		if(scope.size() > 0){
 
-			objApiNames.add(inScopeObject.Api_Name__c);
+			for(In_Scope_Object__mdt inScopeObject : scope){
+
+				objApiNames.add(inScopeObject.Api_Name__c);
+			}
+		}else{
+			
+			throw new utilException(System.Label.noScopeErrorMsg);
 		}
+		System.debug('objApiNames '+objApiNames);
 
 		return objApiNames;
      }
@@ -155,17 +186,25 @@ public class InitAuditUtility {
    * @return          Map<String, String>
      * @param           
      */
-     public static Map<String, String> getInScopeMap(){
+	public static Map<String, String> getInScopeMap(){
 
      	Map<String, String> objMap = new Map<String, String>();
 
-     	for(In_Scope_Audit_Object__mdt inScopeObject : [SELECT Label, Api_Name__c FROM In_Scope_Audit_Object__mdt]){
+		List<In_Scope_Object__mdt> scope = [SELECT Label, Api_Name__c FROM In_Scope_Object__mdt];
 
-			objMap.put(inScopeObject.API_Name__c, inScopeObject.Label);
+		if(scope.size() > 0){
+
+			for(In_Scope_Object__mdt inScopeObject : scope){
+
+				objMap.put(inScopeObject.API_Name__c, inScopeObject.Label);
+			}
+		}else{
+			
+			throw new utilException(System.Label.noScopeErrorMsg);
 		}
 
 		return objMap;
-     }
+    }
 
 
 	/*
