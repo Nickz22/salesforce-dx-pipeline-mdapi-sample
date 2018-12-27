@@ -1,0 +1,10 @@
+<aura:component implements="flexipage:availableForAllPageTypes" controller="initAuditReview">
+    <aura:handler name="init" value="{!this}" action="{!c.getPermSetFields}"/>
+    <aura:attribute name="permissions" type="List"/>
+    <aura:attribute name="value" type="List" />
+
+    <lightning:checkboxGroup name="In-Scope Permissions"
+                             label="Choose In-Scope Permissions"
+                             options="{! v.permissions }"
+                             value="{!v.value}"/>
+</aura:component>	

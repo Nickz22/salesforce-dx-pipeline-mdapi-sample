@@ -1,5 +1,26 @@
 public class initAuditReview {
-	
+
+	/*
+   * @author          Nick Zozaya
+     * @description     Get relevant PermissionSet fields.
+   * @return          Set<String>
+     * @param         
+     */
+	@AuraEnabled
+	public static List<String> getPermissionSetFields(){
+
+		List<String> returnFields = new List<String>();
+
+		Map<String, Schema.SObjectField> fieldMap = PermissionSet.SObjectType.getDescribe().fields.getMap();
+
+		for(String key : fieldMap.keyset()){
+			
+			if(key.contains('permissions')) returnFields.add(key);
+		}
+
+		return returnFields;
+	}
+
 	/*
    * @author          Nick Zozaya
      * @description     Dispatch DML operations as a result of Audit__c creation.
