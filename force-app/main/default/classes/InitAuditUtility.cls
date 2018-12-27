@@ -5,6 +5,7 @@ public class InitAuditUtility {
 	// init in-scope object labels
 	static final List<String> objApiNames = getInScopeApiNames();
 	static final List<String> objLabels = getInScopeLabels();
+	static final Map<String, String> scopedMap = getInScopeMap();
 
 	/*
    * @author          Nick Zozaya
@@ -57,29 +58,40 @@ public class InitAuditUtility {
      */
 	public static Map<Map<String,String>, List<Map<String, String>>> findUarUserAccess(List<ObjectPermissions> allObjectPermissions, List<PermissionSetAssignment> listPermSetAssignments, Map<Map<String,String>, List<Map<String, String>>> nameByPermissionMap){
 		
-		// init return Map
+		// return Map
 		Map<Map<String,String>, List<Map<String, String>>> userPermissionByNameMap = nameByPermissionMap;
 
-		// init top-level permissions container for all objects
-		Map<String, String> opportunityAccessMap = new Map<String, String>();
-		Map<String, String> accountAccessMap = new Map<String, String>();
-		Map<String, String> caseAccessMap = new Map<String, String>();
+		/* 
+		 * init top-level perms container for all objects 
+		 * named by In_Scope_Objects custom metadata type
+		*/
+		Map<String, Map<String, String>> allAccessMaps = new Map<String, Map<String, String>>();
+
+		// add perm map to allAccessMaps for every in-scope object
+		for(String label : objLabels){
+
+			// this will hold read, edit, delete, view/modify all info  
+			new Map<String, String> accessMap = new Map<String, String>();
+
+			// id this map via the obj label
+			allAccessMaps.put(label, accessMap);
+		}
 
 		String loopVar;
 
-		// loop thru list of map {PermissionSetId => PermissionSetAssignment}
+		// loop thru list of PermSetAssignments
 		for(PermissionSetAssignment pSa : listPermSetAssignments){
 
-			// keep top-level loop key
+			// get parent PermSetId
 			loopVar = pSa.PermissionSetId;
 
-			// keep Id of Assignee
+			// this will hold Id of Assignee
 			Map<String,String> userIdMap = new Map<String,String>();
 
 			// init key of this users permissions map
 			userIdMap.put('UserId', pSa.AssigneeId);
 
-			// initialize empty entries for each object
+			// initialize empty or (if multiple batches) in-progress entries for each object
 			Map<String, Map<String, String>> objAccessMaps = initAccessMaps(userPermissionByNameMap, userIdMap, objLabels);
 
 			// Loop thru all ObjectPermissions
@@ -91,33 +103,25 @@ public class InitAuditUtility {
 				// find matching ObjectPermissions
 				if(loopVar == objPermission.ParentId){
 
-					// store in-loop SObjectPermission in map
+					// store this obj perm's relevant fields in map
 					Map<String, String> currentPermissionMap = new Map<String, String>{ 'currentReadAccess' => String.valueOf(objPermission.PermissionsRead), 'currentEditAccess' => String.valueOf(objPermission.PermissionsEdit), 'currentDelAccess' => String.valueOf(objPermission.PermissionsDelete), 'currentViewAllAccess' => String.valueOf(objPermission.PermissionsViewAllRecords), 'currentModifyAllAccess' => String.valueOf(objPermission.PermissionsModifyAllRecords)};
 
-					// check type of in-loop obj permission
-					if(objPermSObjType == Constants.OPPORTUNITY_OBJ){
-
-						objAccessMaps.put(Constants.OPPORTUNITY_OBJ, newObjPermissionMap(userPermissionByNameMap, userIdMap, currentPermissionMap, objAccessMaps.get(Constants.OPPORTUNITY_OBJ), Constants.OPPORTUNITY_OBJ));
-
-					}else if(objPermSObjType == Constants.ACCOUNT_OBJ){
-						
-						objAccessMaps.put(Constants.ACCOUNT_OBJ, newObjPermissionMap(userPermissionByNameMap, userIdMap, currentPermissionMap, objAccessMaps.get(Constants.ACCOUNT_OBJ), Constants.ACCOUNT_OBJ));
-
-					}else if(objPermSObjType == Constants.CASE_OBJ){
-						
-						objAccessMaps.put(Constants.CASE_OBJ, newObjPermissionMap(userPermissionByNameMap, userIdMap, currentPermissionMap, objAccessMaps.get(Constants.CASE_OBJ), Constants.CASE_OBJ));
-					
-					}
+					// overwrite existing objAccessMap entry with updated entry
+					objAccessMaps.put(scopedMap.get(objPermSObjType), newObjPermissionMap(userPermissionByNameMap, userIdMap, currentPermissionMap, objAccessMaps.get(scopedMap.get(objPermSObjType)), scopedMap.get(objPermSObjType)));
 				}
 			}
 
-			// init entries for this PermissionSetAssignment Assignee
-			opportunityAccessMap = getPermissionMap(objAccessMaps.get(Constants.OPPORTUNITY_OBJ), Constants.OPPORTUNITY_OBJ);
-			accountAccessMap = getPermissionMap(objAccessMaps.get(Constants.ACCOUNT_OBJ), Constants.ACCOUNT_OBJ);
-			caseAccessMap = getPermissionMap(objAccessMaps.get(Constants.CASE_OBJ), Constants.CASE_OBJ);
-			
-			// initialize updated top-level in-memory permission for each object
-			List<Map<String, String>> uarUserAccessList = new List<Map<String, String>>{opportunityAccessMap, accountAccessMap, caseAccessMap};
+			for(String key : objAccessMaps.keyset()){
+
+				allAccessMaps.put(key, objAccessMaps.get(key)); 
+			}
+
+			List<Map<String, String>> uarUserAccessList = new List<Map<String, String>>();
+
+			for(String key : allAccessMaps.keyset()){
+
+				uarUserAccessList.add(allAccessMaps.get(key));
+			}
 
 			// replace old in-memory permissions
 			userPermissionByNameMap.put(userIdMap, uarUserAccessList);
@@ -136,7 +140,7 @@ public class InitAuditUtility {
      public static List<String> getInScopeLabels(){
 
 		List<String> objLabels = new List<String>();
-		
+
      	List<In_Scope_Object__mdt> scope = [SELECT Label, Api_Name__c FROM In_Scope_Object__mdt];
 
 		if(scope.size() > 0){
@@ -206,7 +210,6 @@ public class InitAuditUtility {
 		return objMap;
     }
 
-
 	/*
    * @author          Nick Zozaya
      * @description     Method to return top-level in memory user permissions.
@@ -220,7 +223,6 @@ public class InitAuditUtility {
 
 		// loop var
 		Map<String, String> objAccessMap = new Map<String, String>();
-
 
 		for(String objLabel : sObjectTypes){
 
@@ -258,17 +260,17 @@ public class InitAuditUtility {
      */
 	public static Map<String, String> newObjPermissionMap(Map<Map<String, String>, List<Map<String, String>>> userPermissionByNameMap, Map<String, String> userIdMap, Map<String, String> currentPermissionMap, Map<String, String> storedObjPermMap, String objLabel){
 		
-		// grab in-loop object permission privileges
+		// grab this ObjectPermission's privileges 
 		String currentRead = currentPermissionMap.get('currentReadAccess');
 		String currentEdit = currentPermissionMap.get('currentEditAccess');
 		String currentDel  = currentPermissionMap.get('currentDelAccess');
 		String currentModifyAllAccess = currentPermissionMap.get('currentModifyAllAccess');
 		String currentViewAllAccess = currentPermissionMap.get('currentViewAllAccess');
 
-		// return map
+		// init empty return map
 		Map<String, String> newObjPermMap = new Map<String, String>{'Read_Access' => 'false', 'Edit_Access' => 'false', 'Delete_Access' => 'false', 'View_All_Data' => 'false', 'Modify_All_Data' => 'false'};
 		
-		// layer in-loop obj permission over top-level in-memory permissions
+		// layer this ObjectPermission over top-level in-memory permissions
 		if(currentRead == 'true' || currentEdit == 'true' || currentDel == 'true' || currentModifyAllAccess == 'true' || currentViewAllAccess == 'true'){
 
 			// if additional permissions found, add to return map
@@ -277,7 +279,6 @@ public class InitAuditUtility {
 			if(currentDel == 'true'){ newObjPermMap.put('Delete_Access', 'true');}else{newObjPermMap.put('Delete_Access', storedObjPermMap == null ? 'false' : storedObjPermMap.get('Delete_Access'));}
 			if(currentViewAllAccess == 'true'){ newObjPermMap.put('View_All_Data', 'true');}else{newObjPermMap.put('View_All_Data', storedObjPermMap == null ? 'false' : storedObjPermMap.get('View_All_Data'));}
 			if(currentModifyAllAccess == 'true'){ newObjPermMap.put('Modify_All_Data', 'true');}else{newObjPermMap.put('Modify_All_Data', storedObjPermMap == null ? 'false' : storedObjPermMap.get('Modify_All_Data'));}
-
 		}
 
 		return newObjPermMap;
