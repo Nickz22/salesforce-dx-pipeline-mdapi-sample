@@ -41,29 +41,44 @@
 
     },
 
-    handleSelect : function(component, event, helper){
+    handleMouseOver : function(component, event, helper){
 
-        var text = component.get("{!v.chosenPerms}");
-        
-        text = event.getParam("value");
+        // to set relative top/left of div, get sibling position
+        var checkboxGroup = component.find("checkboxGroup").getElement().getBoundingClientRect();
 
-        var checkboxGroup = component.find('checkboxGroup').getElement().getBoundingClientRect();
+        var containerDiv = component.find("container-div").getElement().getBoundingClientRect();
 
-        console.log('outerDiv.getBoundingClientRec().top: '+checkboxGroup.top);
-
+        // to maintain div scroll, only set positioning once
         if(!(component.get("{!v.scrollerDivTopSet}"))){
 
             // set scroller-div top
             component.set("{!v.scrollerDivTop}", checkboxGroup.top);
 
-            // set scroller-div right
-            component.set("{!v.scrollerDivLeft}", checkboxGroup.right);
+            // set scroller-div left
+            component.set("{!v.scrollerDivLeft}", checkboxGroup.right + ((containerDiv.right - checkboxGroup.right)/5));
 
+            // set a sticky top height using dynamically derived coordinates
+            component.set("{!v.dynamicStyles}", "position: fixed; border: 1px solid grey; border-radius: 15px;");
+
+            // ensure we don't set again
             component.set("{!v.scrollerDivTopSet}", true);
+
+            // to enable moving div, apply fixed positioning
+            $A.util.addClass(component.find("selected-permissions"), "scroller-div");
         }
 
+    },
+
+    handleSelect : function(component, event, helper){
+
+        // get attribute
+        var p = component.get("{!v.chosenPerms}");
+        
+        // apply selected checkbox values to attribute
+        p = event.getParam("value");
+
         // set div content
-        component.set("{!v.chosenPerms}", text);
+        component.set("{!v.chosenPerms}", p);
 
         // show div
         component.set("{!v.showSelectedPermissions}", "true");
