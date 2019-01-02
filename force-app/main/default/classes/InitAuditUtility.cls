@@ -26,13 +26,15 @@ public class InitAuditUtility {
 			sysPerms += s+'; ';
 		}
 
-		System.debug('sysPerms concatenated string: '+sysPerms);
-
 		config.System_Permissions__c = sysPerms;
 
 		insert config;
 
-		configId = config.Id;
+		D_V__Access_Configuration_Id__c configId = new D_V__Access_Configuration_Id__c();
+
+		configId.D_V__Value__c = config.Id;
+
+		insert configId;
 	}
 
 	/*
@@ -147,22 +149,22 @@ public class InitAuditUtility {
 			}
 			
 			// loop thru user's perms via object label
-			for(String object : objAccessMaps.keyset()){
+			for(String sObj : objAccessMaps.keyset()){
 				
-				// find which container map matches key ('object')
+				// find which container map matches key ('sobj')
 				for(Map<String, String> m : c){
 
 					// this key matches that key
-					if(m.get('SObjectType') == object){
+					if(m.get('SObjectType') == sObj){
 						
 						// loop thru keyset of obj permissions map ("Read_Access", "View_Access", etc.)
-						for(String k : objAccessMaps.get(object).keyset()){
+						for(String k : objAccessMaps.get(sObj).keyset()){
 							
 							/* 
 							* add permission to container, which only 
 							 * contained 'SObjectType' key prior to this line of code.
 							*/
-							m.put(k, objAccessMaps.get(object).get(k));
+							m.put(k, objAccessMaps.get(sObj).get(k));
 						}
 					}
 				}
@@ -401,6 +403,7 @@ public class InitAuditUtility {
      */
 	public static void updateSystemPermissions(Map<Id, User_Permissions_Snapshot__c> newSnapshots){
 
+		System.debug('in updateSystemPermissions');
 		// isolate user ids for apex bind var
 		Set<Id> userIds = newSnapshots.keyset();
 
@@ -426,8 +429,20 @@ public class InitAuditUtility {
 												 WHERE Id IN (SELECT PermissionSetId FROM PermissionSetAssignment WHERE AssigneeId IN: userIds)]
 												 );*/
 
+		System.debug('before config query --> configId value: '+configId);
+
+		// find only metadata instance which holds Id of Access_Check_Configuration__c associated with this check
+		D_V__Access_Configuration_Id__c thisConfigId = [SELECT D_V__Value__c FROM D_V__Access_Configuration_Id__c];
+
+		String configId = thisConfigId.D_V__Value__c;
+
+		delete thisConfigId;
+
+		System.debug('config custom metadata deleted');
+
 		// get field to create query string out of
 		D_V__Access_Check_Configuration__c config = [SELECT System_Permissions__c FROM D_V__Access_Check_Configuration__c WHERE Id=: configId];
+		System.debug('config found: '+config);
 
 		// create query substring out of semi-colon separated field
 		String queryFields = config.System_Permissions__c.replace(';', ',');
@@ -436,6 +451,13 @@ public class InitAuditUtility {
 		String queryString = '[SELECT '+queryFields+' FROM PermissionSet WHERE Id IN (SELECT PermissionSetId FROM PermissionSetAssignment WHERE AssigneeId IN: userIds)]'; 
 
 		// dyanamic SOQL
+
+		/*
+		* System isn't taking my query string because of a bracket or something...
+		 * look into it, should be easy fix.
+		*/ 
+
+		
 		Map<Id, PermissionSet> allPermissionSets = new Map<Id, PermissionSet>((List<PermissionSet>) Database.query(queryString));
 
 		// init Schema.SObjectType param
@@ -484,7 +506,6 @@ public class InitAuditUtility {
 
 								// add this label to field
 								snapshot.System_Permissions__c += label+ '; ';	
-
 							}else if(snapshot.System_Permissions__c == null){
 
 								// add first label to field
@@ -494,6 +515,7 @@ public class InitAuditUtility {
 					}
 				}
 			}
+
 			// add updated snapshot to update list
 			updateSnapshots.add(snapshot);
 		}

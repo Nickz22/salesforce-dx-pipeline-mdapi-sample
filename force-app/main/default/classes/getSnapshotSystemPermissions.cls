@@ -3,11 +3,13 @@ public class getSnapshotSystemPermissions implements Queueable {
         // init constructor params
 	Map<Id, User_Permissions_Snapshot__c> allNewSnapshots = new Map<Id, User_Permissions_Snapshot__c>();
 	Map<Id, User_Permissions_Snapshot__c> batchedSnapshots = new Map<Id, User_Permissions_Snapshot__c>();
+	// String configId = new String();
 
 	public getSnapshotSystemPermissions(Map<Id, User_Permissions_Snapshot__c> batchedSnapshots , Map<Id, User_Permissions_Snapshot__c> allNewSnapshots){
 
 		this.allNewSnapshots = allNewSnapshots;
 		this.batchedSnapshots = batchedSnapshots;
+		// this.configId = configId;
 
 	}
 
@@ -16,38 +18,48 @@ public class getSnapshotSystemPermissions implements Queueable {
 		// batch iterator
 		Integer i = 0;
 
+		Integer s = allNewSnapshots.keyset().size();
+
 		// loop thru snapshots
-                for(Id userId : allNewSnapshots.keyset()){
+		for(Id userId : allNewSnapshots.keyset()){
 
-                	i++;
+			i++;
 
-                	// set batch size
-                	if(i<300){
+			if(s > 300){
 
-                		// to update, put snapshot in batched map
-                		batchedSnapshots.put(userId, allNewSnapshots.get(userId));
+				// set batch size
+				if(i<300){
 
-                		// to keep track of progress, remove from main map
-                		allNewSnapshots.remove(userId);
+					// to update, put snapshot in batched map
+					batchedSnapshots.put(userId, allNewSnapshots.get(userId));
 
-                	}else if(i==300){
+					// to keep track of progress, remove from main map
+					allNewSnapshots.remove(userId);
 
-                	       // update snapshot batch
-                	       initAuditUtility.updateSystemPermissions(batchedSnapshots);
+				}else if(i==300){
 
-                	       // empty our batch container
-                	       batchedSnapshots.clear();
+						// update snapshot batch
+						initAuditUtility.updateSystemPermissions(batchedSnapshots);
 
-                               if(!Test.isRunningTest()){
+						// empty our batch container
+						batchedSnapshots.clear();
 
-                        	       // requeue remaining snapshots
-                        	       System.enqueueJob(new getSnapshotSystemPermissions(batchedSnapshots, allNewSnapshots));
+						if(!Test.isRunningTest()){
 
-                        	       break;
-                                }
-                                break;
-                	}
-        
-                }
+							// requeue remaining snapshots
+							System.enqueueJob(new getSnapshotSystemPermissions(batchedSnapshots, allNewSnapshots));
+
+							break;
+						}
+
+						break;
+				}
+
+			}else {
+
+				// update snapshot batch
+				initAuditUtility.updateSystemPermissions(allNewSnapshots);
+			}
+		}
 	}
 }
