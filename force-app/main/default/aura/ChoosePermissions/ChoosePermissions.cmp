@@ -18,12 +18,12 @@
             <lightning:card title="{!v.headerTitle}">
                 <div class="slds-p-around_medium" style="padding-top: -1em; margin-top: -.5em; box-shadow: 0px -25px 4px -24px #fe840e;" aura:id="outer-div">
                     Complete the below 3 steps <b>in the given order</b> to run the Access Checker app:
-                    <ol class="slds-list--ordered">					
+                    <ol class="slds-list--ordered">			
                         <li>
                             Create an instance of the <b>In-Scope Objects</b> custom metadata type for each object you'd like included in your access evaluation.
                         </li>
                         <li>
-                            Choose which System Permissions you'd like to include in your access evaluation below. Permissions you choose will be added to each user's User_Permission_Snapshot__c record's <b>System Permissions</b> field.
+                            Choose which System Permissions you'd like to include in your access evaluation below. Your selections will be persisted via the <b>Access_Check_Configuration__c</b> object for easy re-running of the Access Checker app using the same configurations.
                         </li>
                     </ol>
                 </div>

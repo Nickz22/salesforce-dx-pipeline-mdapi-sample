@@ -10,7 +10,7 @@ public class initPermissionSnapshots implements Queueable {
 	}
 
 	public void execute(QueueableContext context) {
-    
+		
     	// to update System_Permissions__c, return new User Permission Snapshots    
         Map<Id, User_Permissions_Snapshot__c> newSnapshots = initAuditUtility.newSnapshotPermissions(nameToPermissionMap);
 

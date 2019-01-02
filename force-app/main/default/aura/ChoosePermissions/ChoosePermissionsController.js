@@ -36,11 +36,6 @@
 
     },
 
-    launchAccessChecker : function(component, event, helper){
-
-
-    },
-
     handleMouseOver : function(component, event, helper){
 
         // to set relative top/left of div, get sibling position
@@ -69,7 +64,7 @@
 
     },
 
-    handleSelect : function(component, event, helper){
+    handleSelect : function(component, event){
 
         // get attribute
         var p = component.get("{!v.chosenPerms}");
@@ -82,5 +77,43 @@
 
         // show div
         component.set("{!v.showSelectedPermissions}", "true");
-    }
+    },
+
+
+    launchAccessChecker : function(component, event, helper){
+
+        var action = component.get("c.createAuditObjects");
+
+        // set apex method param
+        action.setParams({ selectedPermissions : component.get("{!v.chosenPerms}")});
+
+        // callback actions
+        action.setCallback(this, function(response) {
+            var state = response.getState();
+
+            if (state === "SUCCESS") {
+
+                // process successfully initiated, fire toast
+                var resultsToast = $A.get("e.force:showToast");
+                resultsToast.setParams({
+                    "title": "Saved",
+                    "message": "Access check queued. You'll receive an email when it's complete.",
+                    "type": "SUCCESS"
+                });
+                resultsToast.fire();
+                
+            }
+            else if (state === "ERROR") {
+                var errors = response.getError();
+                if (errors) {
+                    if (errors[0] && errors[0].message) {
+                        throw new AuraHandledException("Error message: " + 
+                        errors[0].message);
+                    }
+                }
+            }
+        });
+        // queue @AuraEnabled method
+        $A.enqueueAction(action);
+    },
 })

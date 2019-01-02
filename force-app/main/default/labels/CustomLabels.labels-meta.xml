@@ -553,4 +553,12 @@ Measurement Integration</value>
         <shortDescription>UnFollow_Org_Success_Msg</shortDescription>
         <value>Unfollowed</value>
     </labels>
+    <labels>
+        <fullName>noScopeErrorMsg</fullName>
+        <categories>D_V</categories>
+        <language>en_US</language>
+        <protected>true</protected>
+        <shortDescription>No Scope Error Message</shortDescription>
+        <value>Object scope still needs to be defined via the &quot;In-Scope Objects&quot; Custom Metadata type. Please define objects you&#39;d like to be included in the object access evaluation (via that custom metadata type) and try again.</value>
+    </labels>
 </CustomLabels>

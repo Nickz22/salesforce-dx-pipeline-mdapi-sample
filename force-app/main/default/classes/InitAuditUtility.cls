@@ -1,11 +1,39 @@
 public class InitAuditUtility {
 
+	static String configId;
+
 	public class utilException extends Exception {}
 
 	// init in-scope object labels
 	static final List<String> objApiNames = getInScopeApiNames();
 	static final List<String> objLabels = getInScopeLabels();
 	static final Map<String, String> scopedMap = getInScopeMap();
+
+	/*
+   * @author          Nick Zozaya
+     * @description     Method to retrieve ObjectPermissions
+   * @return          List<ObjectPermissions>
+     * @param           Set<String> revieweeIds
+     */
+	public static void createConfig(List<String> selectedPermissions){
+
+		D_V__Access_Check_Configuration__c config = new D_V__Access_Check_Configuration__c();
+
+		String sysPerms;
+
+		for(String s : selectedPermissions){
+
+			sysPerms += s+'; ';
+		}
+
+		System.debug('sysPerms concatenated string: '+sysPerms);
+
+		config.System_Permissions__c = sysPerms;
+
+		insert config;
+
+		configId = config.Id;
+	}
 
 	/*
    * @author          Nick Zozaya
@@ -62,25 +90,52 @@ public class InitAuditUtility {
 		Map<Map<String,String>, List<Map<String, String>>> userPermissionByNameMap = nameByPermissionMap;
 
 		/* 
-		 * init top-level perms container for all objects 
-		 * named by In_Scope_Objects custom metadata type
-		*/
-		Map<String, Map<String, String>> allAccessMaps = new Map<String, Map<String, String>>();
+		* initialize a container to hold object permissions for each user. 
+		 * We'll reuse it for each user, overwriting the previous user's values 
+		* with the new user's permission values. 
+		 * Currently having trouble with this because it seems like the container's reference
+		* is persisting its new value into prior map entries that use the same container. 
+		 
+		List<Map<String, String>> allAccessMaps = new List<Map<String, String>>();
 
-		// add perm map to allAccessMaps for every in-scope object
+		// add empty map to allAccessMaps for every in-scope object
 		for(String label : objLabels){
 
 			// this will hold read, edit, delete, view/modify all info  
 			Map<String, String> accessMap = new Map<String, String>();
 
-			// id this map via the obj label
-			allAccessMaps.put(label, accessMap);
-		}
+			// specify object
+			accessMap.put('SObjectType', label);
 
+			// use SObjectType as accessMap key
+			allAccessMaps.add(accessMap);
+		}
+		*/
 		String loopVar;
 
-		// loop thru list of PermSetAssignments
+		// loop thru list of PermissionSetAssignments
 		for(PermissionSetAssignment pSa : listPermSetAssignments){
+
+			/*
+			* trying to abstract each user's use of the allAccessMaps 
+			 * container, in hopes that it will stop new values from being
+			* persisted into previous map entries (which I believe is happening because 
+			 * each map entry is referencing the same container).
+			*/
+			List<Map<String, String>> c = new List<Map<String, String>>();
+
+			// add empty map to allAccessMaps for every in-scope object
+			for(String label : objLabels){
+
+				// this will hold read, edit, delete, view/modify all info  
+				Map<String, String> accessMap = new Map<String, String>();
+
+				// specify object
+				accessMap.put('SObjectType', label);
+
+				// use SObjectType as accessMap key
+				c.add(accessMap);
+			}
 
 			// get parent PermSetId
 			loopVar = pSa.PermissionSetId;
@@ -88,10 +143,10 @@ public class InitAuditUtility {
 			// this will hold Id of Assignee
 			Map<String,String> userIdMap = new Map<String,String>();
 
-			// init key of this users permissions map
+			// init key of this user's permission(s) map
 			userIdMap.put('UserId', pSa.AssigneeId);
 
-			// initialize empty or (if multiple batches) in-progress entries for each object
+			// initialize this user's empty or (if multiple batches) in-progress entries for each object
 			Map<String, Map<String, String>> objAccessMaps = initAccessMaps(userPermissionByNameMap, userIdMap, objLabels);
 
 			// Loop thru all ObjectPermissions
@@ -103,30 +158,53 @@ public class InitAuditUtility {
 				// find matching ObjectPermissions
 				if(loopVar == objPermission.ParentId){
 
-					// store this obj perm's relevant fields in map
+					// store this ObjectPermission's relevant fields in map
 					Map<String, String> currentPermissionMap = new Map<String, String>{ 'currentReadAccess' => String.valueOf(objPermission.PermissionsRead), 'currentEditAccess' => String.valueOf(objPermission.PermissionsEdit), 'currentDelAccess' => String.valueOf(objPermission.PermissionsDelete), 'currentViewAllAccess' => String.valueOf(objPermission.PermissionsViewAllRecords), 'currentModifyAllAccess' => String.valueOf(objPermission.PermissionsModifyAllRecords)};
 
-					// overwrite existing objAccessMap entry with updated entry
+					// overwrite this user's existing objAccessMap entry with updated entry
 					objAccessMaps.put(scopedMap.get(objPermSObjType), newObjPermissionMap(userPermissionByNameMap, userIdMap, currentPermissionMap, objAccessMaps.get(scopedMap.get(objPermSObjType)), scopedMap.get(objPermSObjType)));
 				}
 			}
+			
+			//System.debug('<---objAccessMaps----> \n'+objAccessMaps+'\n <---allAccessMaps---->\n'+allAccessMaps);
 
+			// loop thru user's perms via SObjectType
 			for(String key : objAccessMaps.keyset()){
+				
+				// find which top-level entry matches this key
+				for(Map<String, String> m : c){
 
-				allAccessMaps.put(key, objAccessMaps.get(key)); 
-			}
+					// this key matches that key
+					if(m.get('SObjectType') == key){
+						
+						// get keyset of permissions map ("Read_Access", "View_Access", etc.)
+						for(String k : objAccessMaps.get(key).keyset()){
+							
+							if(userPermissionByNameMap != null){
 
-			List<Map<String, String>> uarUserAccessList = new List<Map<String, String>>();
+								System.debug('userPermissionByNameMap entry BEFORE this users allAccessMaps.clone() update: '+userPermissionByNameMap);
+							}
+							/* 
+							* add permissions to top-level container, which only 
+							 * contains SObjectType prior to this line of code
+							*/
+							m.put(k, objAccessMaps.get(key).get(k));
 
-			for(String key : allAccessMaps.keyset()){
+							if(userPermissionByNameMap != null){
 
-				uarUserAccessList.add(allAccessMaps.get(key));
+								System.debug('userPermissionByNameMap entry AFTER this users allAccessMaps.clone() update: '+userPermissionByNameMap);
+							}
+						}
+					}
+				}
 			}
 
 			// replace old in-memory permissions
-			userPermissionByNameMap.put(userIdMap, uarUserAccessList);
+			userPermissionByNameMap.put(userIdMap, c);
+			System.debug('userPBNM updated: '+userPermissionByNameMap);
 		}
 
+		System.debug('<----(FINAL) userPermissionByNameMap---->\n'+userPermissionByNameMap);
 		// return all users permissions
 		return userPermissionByNameMap;
 	}
@@ -179,7 +257,6 @@ public class InitAuditUtility {
 			
 			throw new utilException(System.Label.noScopeErrorMsg);
 		}
-		System.debug('objApiNames '+objApiNames);
 
 		return objApiNames;
      }
@@ -229,7 +306,7 @@ public class InitAuditUtility {
 			// init blank entry for each object
 			objAccessMap = new Map<String, String>{'Read_Access'=>'false', 'Edit_Access'=>'false', 'Delete_Access'=>'false', 'View_All_Data'=>'false', 'Modify_All_Data'=>'false'};
 
-			// check if user has an existing top-level entry
+			// check if user has existing entry for this obj
 			if(userPermissionByNameMap.get(userIdMap)!=null){
 
 				// loop through user's top-level entries
@@ -316,23 +393,26 @@ public class InitAuditUtility {
 		List<String> userIds = new List<String>();
 
 		// user id for each permission map
-		for(Map<String, String> key : userPermissionByNameMap.keyset()) userIds.add(key.get('UserId'));
+		for(Map<String, String> key : userPermissionByNameMap.keyset()){ 
+			
+			userIds.add(key.get('UserId'));
+		}
 
 		// isolate Users
 		Map<Id, User> uar_Users = new Map<Id, User>([SELECT Id, Name FROM User WHERE Id IN: userIds]);
 
 		// loop thru users and respective permissions
-		for(Map<String, String> key : userPermissionByNameMap.keyset()){
+		for(Map<String, String> key : userPermissionByNameMap.keyset()){	
 
 			// init this user's Permission Snapshot
 			User_Permissions_Snapshot__c currentUserPermissionSnapshot = new User_Permissions_Snapshot__c();
 			currentUserPermissionSnapshot.Name = uar_Users.get(key.get('UserId')).Name;
-			currentUserPermissionSnapshot.User__c = uar_Users.get(key.get('UserId')).Id;
-			currentUserPermissionSnapshot.Modify_All_Access__c = '';
-			currentUserPermissionSnapshot.View_All_Access__c = '';
-			currentUserPermissionSnapshot.Delete_Access__c = '';
-			currentUserPermissionSnapshot.Edit_Access__c = '';
-			currentUserPermissionSnapshot.Read_Access__c = '';
+			currentUserPermissionSnapshot.D_V__User__c = uar_Users.get(key.get('UserId')).Id;
+			currentUserPermissionSnapshot.D_V__Modify_All_Access__c = '';
+			currentUserPermissionSnapshot.D_V__View_All_Access__c = '';
+			currentUserPermissionSnapshot.D_V__Delete_Access__c = '';
+			currentUserPermissionSnapshot.D_V__Edit_Access__c = '';
+			currentUserPermissionSnapshot.D_V__Read_Access__c = '';
 
 			
 			// grab user's access to each obj
@@ -345,10 +425,6 @@ public class InitAuditUtility {
 				String sObjType = objPermission.get('SObjectType');
 
 				// update snapshot
-
-				/*
-				 * need to test this code to see if it takes care of multiple object types being added to one picklist field
-				*/
 				if(objPermission.get('Modify_All_Data') == 'true' && !(currentUserPermissionSnapshot.Modify_All_Access__c.contains(sObjType))) currentUserPermissionSnapshot.Modify_All_Access__c += sObjType+'; ';
 				if(objPermission.get('View_All_Data') == 'true' && !(currentUserPermissionSnapshot.View_All_Access__c.contains(sObjType))) currentUserPermissionSnapshot.View_All_Access__c += sObjType+'; ';
 				if(objPermission.get('Delete_Access') == 'true' && !(currentUserPermissionSnapshot.Delete_Access__c.contains(sObjType))) currentUserPermissionSnapshot.Delete_Access__c += sObjType+'; ';
@@ -381,7 +457,7 @@ public class InitAuditUtility {
 		Map<Id, PermissionSetAssignment> assignments = new Map<Id, PermissionSetAssignment>([SELECT PermissionSetId, AssigneeId FROM PermissionSetAssignment WHERE AssigneeId IN: userIds]);
 
 		// get in-scope system permissions from related permissionSets
-		Map<Id, PermissionSet> allPermissionSets = new Map<Id, PermissionSet>(
+		/*Map<Id, PermissionSet> allPermissionSets = new Map<Id, PermissionSet>(
 														[SELECT PermissionsApiEnabled, PermissionsAuthorApex, PermissionsBulkApiHardDelete,
 														PermissionsCreateCustomizeReports,
 														PermissionsInstallPackaging, PermissionsImportCustomObjects,
@@ -397,7 +473,20 @@ public class InitAuditUtility {
 														PermissionsManageSharing, PermissionsManageUsers, PermissionsResetPasswords, PermissionsViewAllUsers
 												 FROM PermissionSet 
 												 WHERE Id IN (SELECT PermissionSetId FROM PermissionSetAssignment WHERE AssigneeId IN: userIds)]
-												 );
+												 );*/
+
+		// get field to create query string out of
+		D_V__Access_Check_Configuration__c config = [SELECT System_Permissions__c FROM D_V__Access_Check_Configuration__c WHERE Id=: configId];
+
+		// create query substring out of semi-colon separated field
+		String queryFields = config.System_Permissions__c.replace(';', ',');
+
+		// create query string
+		String queryString = '[SELECT '+queryFields+' FROM PermissionSet WHERE Id IN (SELECT PermissionSetId FROM PermissionSetAssignment WHERE AssigneeId IN: userIds)]'; 
+
+		// dyanamic SOQL
+		Map<Id, PermissionSet> allPermissionSets = new Map<Id, PermissionSet>((List<PermissionSet>) Database.query(queryString));
+
 		// init Schema.SObjectType param
 		final String objType = 'PermissionSet';
 

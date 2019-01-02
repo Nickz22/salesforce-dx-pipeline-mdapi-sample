@@ -28,7 +28,10 @@ public class initAuditReview {
      * @param           String auditId
      */
 	@AuraEnabled
-	public static void createAuditObjects(){
+	public static void createAuditObjects(List<String> selectedPermissions){
+
+		// create config object to persis selected permissions
+		initAuditUtility.createConfig(selectedPermissions);
 
 		List<PermissionSetAssignment> permSetAssignments = [SELECT AssigneeId, PermissionSetId, Assignee.Name FROM PermissionSetAssignment WHERE Assignee.IsActive = true];
 		List<ObjectPermissions> allObjectPermissions = initAuditUtility.getAllObjectPermissions();
@@ -36,6 +39,8 @@ public class initAuditReview {
 		Map<Map<String, String>, List<Map<String, String>>> nameToPermissionMap = new Map<Map<String, String>, List<Map<String, String>>>();
 
 		if(!Test.isRunningTest()){
+
+			// create custom setting containing selectedPermissions
 
 			// aggregate object-permissions at user level
 			System.enqueueJob(new aggregateObjectPermissions(allObjectPermissions, permSetAssignments, nameToPermissionMap));
