@@ -89,42 +89,18 @@ public class InitAuditUtility {
 		// return Map
 		Map<Map<String,String>, List<Map<String, String>>> userPermissionByNameMap = nameByPermissionMap;
 
-		/* 
-		* initialize a container to hold object permissions for each user. 
-		 * We'll reuse it for each user, overwriting the previous user's values 
-		* with the new user's permission values. 
-		 * Currently having trouble with this because it seems like the container's reference
-		* is persisting its new value into prior map entries that use the same container. 
-		 
-		List<Map<String, String>> allAccessMaps = new List<Map<String, String>>();
-
-		// add empty map to allAccessMaps for every in-scope object
-		for(String label : objLabels){
-
-			// this will hold read, edit, delete, view/modify all info  
-			Map<String, String> accessMap = new Map<String, String>();
-
-			// specify object
-			accessMap.put('SObjectType', label);
-
-			// use SObjectType as accessMap key
-			allAccessMaps.add(accessMap);
-		}
-		*/
 		String loopVar;
 
 		// loop thru list of PermissionSetAssignments
 		for(PermissionSetAssignment pSa : listPermSetAssignments){
 
 			/*
-			* trying to abstract each user's use of the allAccessMaps 
-			 * container, in hopes that it will stop new values from being
-			* persisted into previous map entries (which I believe is happening because 
-			 * each map entry is referencing the same container).
+			* initialize container to hold this assignee's permissions,
+			 * with empty entries in it for each in-scope object
 			*/
 			List<Map<String, String>> c = new List<Map<String, String>>();
 
-			// add empty map to allAccessMaps for every in-scope object
+			// add map to c for every in-scope object
 			for(String label : objLabels){
 
 				// this will hold read, edit, delete, view/modify all info  
@@ -133,7 +109,7 @@ public class InitAuditUtility {
 				// specify object
 				accessMap.put('SObjectType', label);
 
-				// use SObjectType as accessMap key
+				// add to container
 				c.add(accessMap);
 			}
 
@@ -143,10 +119,14 @@ public class InitAuditUtility {
 			// this will hold Id of Assignee
 			Map<String,String> userIdMap = new Map<String,String>();
 
-			// init key of this user's permission(s) map
+			// init key of this user's permission map(s)
 			userIdMap.put('UserId', pSa.AssigneeId);
 
-			// initialize this user's empty or (if multiple batches) in-progress entries for each object
+			/*
+			* To ensure we start with most current permissions, set objAccessMaps 
+			 * equal to this user's userPermissionByNameMap entry (userPermissionByNameMap 
+			* will either be blank or populated depending on which batch number this is).
+			 */
 			Map<String, Map<String, String>> objAccessMaps = initAccessMaps(userPermissionByNameMap, userIdMap, objLabels);
 
 			// Loop thru all ObjectPermissions
