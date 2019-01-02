@@ -146,45 +146,32 @@ public class InitAuditUtility {
 				}
 			}
 			
-			//System.debug('<---objAccessMaps----> \n'+objAccessMaps+'\n <---allAccessMaps---->\n'+allAccessMaps);
-
-			// loop thru user's perms via SObjectType
-			for(String key : objAccessMaps.keyset()){
+			// loop thru user's perms via object label
+			for(String object : objAccessMaps.keyset()){
 				
-				// find which top-level entry matches this key
+				// find which container map matches key ('object')
 				for(Map<String, String> m : c){
 
 					// this key matches that key
-					if(m.get('SObjectType') == key){
+					if(m.get('SObjectType') == object){
 						
-						// get keyset of permissions map ("Read_Access", "View_Access", etc.)
-						for(String k : objAccessMaps.get(key).keyset()){
+						// loop thru keyset of obj permissions map ("Read_Access", "View_Access", etc.)
+						for(String k : objAccessMaps.get(object).keyset()){
 							
-							if(userPermissionByNameMap != null){
-
-								System.debug('userPermissionByNameMap entry BEFORE this users allAccessMaps.clone() update: '+userPermissionByNameMap);
-							}
 							/* 
-							* add permissions to top-level container, which only 
-							 * contains SObjectType prior to this line of code
+							* add permission to container, which only 
+							 * contained 'SObjectType' key prior to this line of code.
 							*/
-							m.put(k, objAccessMaps.get(key).get(k));
-
-							if(userPermissionByNameMap != null){
-
-								System.debug('userPermissionByNameMap entry AFTER this users allAccessMaps.clone() update: '+userPermissionByNameMap);
-							}
+							m.put(k, objAccessMaps.get(object).get(k));
 						}
 					}
 				}
 			}
 
-			// replace old in-memory permissions
+			// replace top-level in-memory permissions
 			userPermissionByNameMap.put(userIdMap, c);
-			System.debug('userPBNM updated: '+userPermissionByNameMap);
 		}
 
-		System.debug('<----(FINAL) userPermissionByNameMap---->\n'+userPermissionByNameMap);
 		// return all users permissions
 		return userPermissionByNameMap;
 	}
@@ -317,7 +304,7 @@ public class InitAuditUtility {
      */
 	public static Map<String, String> newObjPermissionMap(Map<Map<String, String>, List<Map<String, String>>> userPermissionByNameMap, Map<String, String> userIdMap, Map<String, String> currentPermissionMap, Map<String, String> storedObjPermMap, String objLabel){
 		
-		// grab this ObjectPermission's privileges 
+		// get ObjectPermissions fields
 		String currentRead = currentPermissionMap.get('currentReadAccess');
 		String currentEdit = currentPermissionMap.get('currentEditAccess');
 		String currentDel  = currentPermissionMap.get('currentDelAccess');
@@ -327,7 +314,7 @@ public class InitAuditUtility {
 		// init empty return map
 		Map<String, String> newObjPermMap = new Map<String, String>{'Read_Access' => 'false', 'Edit_Access' => 'false', 'Delete_Access' => 'false', 'View_All_Data' => 'false', 'Modify_All_Data' => 'false'};
 		
-		// layer this ObjectPermission over top-level in-memory permissions
+		// layer this ObjectPermission over this user's in-memory permissions
 		if(currentRead == 'true' || currentEdit == 'true' || currentDel == 'true' || currentModifyAllAccess == 'true' || currentViewAllAccess == 'true'){
 
 			// if additional permissions found, add to return map
@@ -337,7 +324,8 @@ public class InitAuditUtility {
 			if(currentViewAllAccess == 'true'){ newObjPermMap.put('View_All_Data', 'true');}else{newObjPermMap.put('View_All_Data', storedObjPermMap == null ? 'false' : storedObjPermMap.get('View_All_Data'));}
 			if(currentModifyAllAccess == 'true'){ newObjPermMap.put('Modify_All_Data', 'true');}else{newObjPermMap.put('Modify_All_Data', storedObjPermMap == null ? 'false' : storedObjPermMap.get('Modify_All_Data'));}
 		}
-
+		
+		// return user's updated map
 		return newObjPermMap;
 	}
 
