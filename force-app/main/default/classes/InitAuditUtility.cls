@@ -331,23 +331,6 @@ public class InitAuditUtility {
 
 	/*
    * @author          Nick Zozaya
-     * @description     Method to couple object label and it's corresponding access map
-   * @return          Map<String, String>
-     * @param           Map<String, String> objMap, String objLabel
-     */
-	public static Map<String, String> getPermissionMap(Map<String, String> objMap, String objLabel){
-
-		// Map<String, String> objAccessMap = new Map<String, String>();
-
-
-		objMap.put('SObjectType', objLabel);
-
-		return objMap;
-
-	}
-
-	/*
-   * @author          Nick Zozaya
      * @description     Method to return Map of user id to corresponding snapshot
    * @return          Map<Id, User_Permissions_Snapshot__c>
      * @param           Map<Map<String,String>,List<Map<String,String>>> userPermissionByNameMap
