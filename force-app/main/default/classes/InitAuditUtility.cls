@@ -19,7 +19,7 @@ public class InitAuditUtility {
 
 		D_V__Access_Check_Configuration__c config = new D_V__Access_Check_Configuration__c();
 
-		String sysPerms;
+		String sysPerms = '';
 
 		for(String s : selectedPermissions){
 
@@ -30,11 +30,11 @@ public class InitAuditUtility {
 
 		insert config;
 
-		D_V__Access_Configuration_Id__c configId = new D_V__Access_Configuration_Id__c();
+		D_V__Access_Check_Configuration__c c = [SELECT D_V__System_Permissions__c FROM D_V__Access_Check_Configuration__c WHERE Id =: config.Id];
 
-		configId.D_V__Value__c = config.Id;
+		System.debug('c.SystemPermissions__c: '+c.System_Permissions__c);
 
-		insert configId;
+		System.enqueueJob(new insertConfigId(config.Id));
 	}
 
 	/*
@@ -403,61 +403,28 @@ public class InitAuditUtility {
      */
 	public static void updateSystemPermissions(Map<Id, User_Permissions_Snapshot__c> newSnapshots){
 
-		System.debug('in updateSystemPermissions');
 		// isolate user ids for apex bind var
 		Set<Id> userIds = newSnapshots.keyset();
 
 		// get permissionSetAssignments related to snapshots
 		Map<Id, PermissionSetAssignment> assignments = new Map<Id, PermissionSetAssignment>([SELECT PermissionSetId, AssigneeId FROM PermissionSetAssignment WHERE AssigneeId IN: userIds]);
 
-		// get in-scope system permissions from related permissionSets
-		/*Map<Id, PermissionSet> allPermissionSets = new Map<Id, PermissionSet>(
-														[SELECT PermissionsApiEnabled, PermissionsAuthorApex, PermissionsBulkApiHardDelete,
-														PermissionsCreateCustomizeReports,
-														PermissionsInstallPackaging, PermissionsImportCustomObjects,
-														PermissionsManagePvtRptsAndDashbds, PermissionsManageRemoteAccess,
-														PermissionsManageCustomPermissions, PermissionsManageCustomReportTypes, PermissionsManageDashbdsInPubFolders,
-														PermissionsManageDataIntegrations, PermissionsManageInteraction, PermissionsManageReportsInPubFolders, 
-														PermissionsManageSessionPermissionSets, PermissionsManageTwoFactor, PermissionsDelegatedTwoFactor,
-														PermissionsModifyMetadata, PermissionsPasswordNeverExpires, PermissionsCreateReportInLightning,
-														PermissionsNewReportBuilder, PermissionsScheduleReports, PermissionsTransferAnyEntity, 
-														PermissionsTwoFactorApi, PermissionsForceTwoFactor, PermissionsAssignPermissionSets,
-														PermissionsManageInternalUsers, PermissionsManageIpAddresses, PermissionsManageLoginAccessPolicies, 
-														PermissionsManagePasswordPolicies, PermissionsManageProfilesPermissionsets, PermissionsManageRoles, 
-														PermissionsManageSharing, PermissionsManageUsers, PermissionsResetPasswords, PermissionsViewAllUsers
-												 FROM PermissionSet 
-												 WHERE Id IN (SELECT PermissionSetId FROM PermissionSetAssignment WHERE AssigneeId IN: userIds)]
-												 );*/
-
-		System.debug('before config query --> configId value: '+configId);
-
 		// find only metadata instance which holds Id of Access_Check_Configuration__c associated with this check
 		D_V__Access_Configuration_Id__c thisConfigId = [SELECT D_V__Value__c FROM D_V__Access_Configuration_Id__c];
 
+		// take Access_Check_Configuration__c.Id
 		String configId = thisConfigId.D_V__Value__c;
-
-		delete thisConfigId;
-
-		System.debug('config custom metadata deleted');
 
 		// get field to create query string out of
 		D_V__Access_Check_Configuration__c config = [SELECT System_Permissions__c FROM D_V__Access_Check_Configuration__c WHERE Id=: configId];
-		System.debug('config found: '+config);
 
 		// create query substring out of semi-colon separated field
 		String queryFields = config.System_Permissions__c.replace(';', ',');
 
 		// create query string
-		String queryString = '[SELECT '+queryFields+' FROM PermissionSet WHERE Id IN (SELECT PermissionSetId FROM PermissionSetAssignment WHERE AssigneeId IN: userIds)]'; 
+		String queryString = 'SELECT '+queryFields+' FROM PermissionSet WHERE Id IN (SELECT PermissionSetId FROM PermissionSetAssignment WHERE AssigneeId IN: userIds)'; 
 
 		// dyanamic SOQL
-
-		/*
-		* System isn't taking my query string because of a bracket or something...
-		 * look into it, should be easy fix.
-		*/ 
-
-		
 		Map<Id, PermissionSet> allPermissionSets = new Map<Id, PermissionSet>((List<PermissionSet>) Database.query(queryString));
 
 		// init Schema.SObjectType param
@@ -506,6 +473,7 @@ public class InitAuditUtility {
 
 								// add this label to field
 								snapshot.System_Permissions__c += label+ '; ';	
+
 							}else if(snapshot.System_Permissions__c == null){
 
 								// add first label to field

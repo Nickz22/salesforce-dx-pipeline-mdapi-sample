@@ -1,16 +1,13 @@
 public class getSnapshotSystemPermissions implements Queueable {
 
-        // init constructor params
+    // init constructor params
 	Map<Id, User_Permissions_Snapshot__c> allNewSnapshots = new Map<Id, User_Permissions_Snapshot__c>();
 	Map<Id, User_Permissions_Snapshot__c> batchedSnapshots = new Map<Id, User_Permissions_Snapshot__c>();
-	// String configId = new String();
 
 	public getSnapshotSystemPermissions(Map<Id, User_Permissions_Snapshot__c> batchedSnapshots , Map<Id, User_Permissions_Snapshot__c> allNewSnapshots){
 
 		this.allNewSnapshots = allNewSnapshots;
 		this.batchedSnapshots = batchedSnapshots;
-		// this.configId = configId;
-
 	}
 
 	public void execute(QueueableContext context) {
@@ -29,7 +26,7 @@ public class getSnapshotSystemPermissions implements Queueable {
 
 				// set batch size
 				if(i<300){
-
+					
 					// to update, put snapshot in batched map
 					batchedSnapshots.put(userId, allNewSnapshots.get(userId));
 
@@ -59,7 +56,17 @@ public class getSnapshotSystemPermissions implements Queueable {
 
 				// update snapshot batch
 				initAuditUtility.updateSystemPermissions(allNewSnapshots);
+
+				// break because we just updated all relevant Snapshots
+				break;
 			}
 		}
+
+		// find only metadata instance which holds Id of Access_Check_Configuration__c associated with this check
+		D_V__Access_Configuration_Id__c thisConfigId = [SELECT Name, D_V__Value__c FROM D_V__Access_Configuration_Id__c];
+
+		// hard delete unnecessary custom setting
+		delete thisConfigId;
+		Database.emptyRecycleBin(thisConfigId);
 	}
 }

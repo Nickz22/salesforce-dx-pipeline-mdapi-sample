@@ -40,8 +40,6 @@ public class initAuditReview {
 
 		if(!Test.isRunningTest()){
 
-			// create custom setting containing selectedPermissions
-
 			// aggregate object-permissions at user level
 			System.enqueueJob(new aggregateObjectPermissions(allObjectPermissions, permSetAssignments, nameToPermissionMap));
 
