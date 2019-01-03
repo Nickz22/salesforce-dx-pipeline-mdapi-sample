@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
-    <fullName>Read_Access__c</fullName>
+    <fullName>System_Permissions__c</fullName>
+    <description>System Permissions included in this config instance.</description>
     <externalId>false</externalId>
-    <label>Read Access</label>
+    <label>In-Scope System Permissions</label>
     <required>false</required>
     <trackTrending>false</trackTrending>
     <type>MultiselectPicklist</type>
@@ -10,19 +11,9 @@
         <valueSetDefinition>
             <sorted>false</sorted>
             <value>
-                <fullName>Account</fullName>
+                <fullName>Manage All Users</fullName>
                 <default>false</default>
-                <label>Account</label>
-            </value>
-            <value>
-                <fullName>Case</fullName>
-                <default>false</default>
-                <label>Case</label>
-            </value>
-            <value>
-                <fullName>Opportunity</fullName>
-                <default>false</default>
-                <label>Opportunity</label>
+                <label>Manage All Users</label>
             </value>
         </valueSetDefinition>
     </valueSet>
