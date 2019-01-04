@@ -72,12 +72,13 @@ public class InitAuditUtility {
      */
 	public static List<ObjectPermissions> getAllObjectPermissions(){
 
+		/*
 		// pretty sure we can remove this as List<String> is being set via methods
-		List<In_Scope_Object__mdt> scope = [SELECT Label, Api_Name__c FROM In_Scope_Object__mdt];
+		List<D_V__In_Scope_Object__mdt> scope = [SELECT Label, Api_Name__c FROM D_V__In_Scope_Object__mdt];
 
 		if(scope.size() > 0){
 
-			for(In_Scope_Object__mdt inScopeObject : scope){
+			for(D_V__In_Scope_Object__mdt inScopeObject : scope){
 
 				objLabels.add(inScopeObject.Label);
 				objApiNames.add(inScopeObject.Api_Name__c);
@@ -88,7 +89,9 @@ public class InitAuditUtility {
 			throw new utilException(System.Label.noScopeErrorMsg);
 
 		}
+		*/
 
+		System.debug('check objApiNames var: '+objApiNames);
 		/*
 		** Find any ObjectPermission where ParentId == PermissionSetAssignment.PermissionSetId
 		*/
@@ -101,6 +104,8 @@ public class InitAuditUtility {
 														PermissionsRead = true
 														AND
 											 		    SobjectType IN: objApiNames];
+
+		System.debug('allObjectPermissions.size(): '+allObjectPermissions.size());
 
 
 		return allObjectPermissions;
@@ -144,6 +149,7 @@ public class InitAuditUtility {
 
 			// get parent PermSetId
 			loopVar = pSa.PermissionSetId;
+			System.debug('loopVar is: '+loopVar);
 
 			// this will hold Id of Assignee
 			Map<String,String> userIdMap = new Map<String,String>();
@@ -157,13 +163,14 @@ public class InitAuditUtility {
 			* will either be blank or populated depending on which batch number this is).
 			 */
 			Map<String, Map<String, String>> objAccessMaps = initAccessMaps(userPermissionByNameMap, userIdMap, objLabels);
-
+			System.debug('allObjectPermissions blank? '+allObjectPermissions);
 			// Loop thru all ObjectPermissions
 			for(ObjectPermissions objPermission : allObjectPermissions){
 
 				// isolate type
 				String objPermSObjType = objPermission.SobjectType;
 
+				System.debug('outside of loopVar loop');
 				// find matching ObjectPermissions
 				if(loopVar == objPermission.ParentId){
 
@@ -172,6 +179,7 @@ public class InitAuditUtility {
 
 					// overwrite this user's existing objAccessMap entry with updated entry
 					objAccessMaps.put(scopedMap.get(objPermSObjType), newObjPermissionMap(userPermissionByNameMap, userIdMap, currentPermissionMap, objAccessMaps.get(scopedMap.get(objPermSObjType)), scopedMap.get(objPermSObjType)));
+					System.debug('objAccessMaps just updated: '+objAccessMaps);
 				}
 			}
 			
@@ -215,11 +223,11 @@ public class InitAuditUtility {
 
 		List<String> objLabels = new List<String>();
 
-     	List<In_Scope_Object__mdt> scope = [SELECT Label, Api_Name__c FROM In_Scope_Object__mdt];
+     	List<D_V__In_Scope_Object__mdt> scope = [SELECT Label, Api_Name__c FROM D_V__In_Scope_Object__mdt];
 
 		if(scope.size() > 0){
 
-			for(In_Scope_Object__mdt inScopeObject : scope){
+			for(D_V__In_Scope_Object__mdt inScopeObject : scope){
 
 				objLabels.add(inScopeObject.Label);
 			}
@@ -239,22 +247,26 @@ public class InitAuditUtility {
      */
      public static List<String> getInScopeApiNames(){
 		
-		List<String> objApiNames = new List<String>();
+		List<String> apiNames = new List<String>();
 
-     	List<In_Scope_Object__mdt> scope = [SELECT Label, Api_Name__c FROM In_Scope_Object__mdt];
+     	List<D_V__In_Scope_Object__mdt> scope = [SELECT Label, Api_Name__c FROM D_V__In_Scope_Object__mdt];
+
+		System.debug('found In-Scope Objects: '+scope);
 
 		if(scope.size() > 0){
 
-			for(In_Scope_Object__mdt inScopeObject : scope){
-
-				objApiNames.add(inScopeObject.Api_Name__c);
+			for(D_V__In_Scope_Object__mdt inScopeObject : scope){
+				System.debug('apiNames before addition: '+apiNames);
+				apiNames.add(inScopeObject.D_V__Api_Name__c);
+				System.debug('apiNames after addition: '+apiNames);
 			}
 		}else{
 			
 			throw new utilException(System.Label.noScopeErrorMsg);
 		}
 
-		return objApiNames;
+		System.debug('apiNames return value: '+apiNames);
+		return apiNames;
      }
 
      /*
@@ -267,11 +279,11 @@ public class InitAuditUtility {
 
      	Map<String, String> objMap = new Map<String, String>();
 
-		List<In_Scope_Object__mdt> scope = [SELECT Label, Api_Name__c FROM In_Scope_Object__mdt];
+		List<D_V__In_Scope_Object__mdt> scope = [SELECT Label, Api_Name__c FROM D_V__In_Scope_Object__mdt];
 
 		if(scope.size() > 0){
 
-			for(In_Scope_Object__mdt inScopeObject : scope){
+			for(D_V__In_Scope_Object__mdt inScopeObject : scope){
 
 				objMap.put(inScopeObject.API_Name__c, inScopeObject.Label);
 			}
