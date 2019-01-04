@@ -14,6 +14,21 @@
                 <default>false</default>
                 <label>Modify All Data</label>
             </value>
+            <value>
+                <fullName>Show App Launcher in Communities</fullName>
+                <default>false</default>
+                <label>Show App Launcher in Communities</label>
+            </value>
+            <value>
+                <fullName>Manage Public Classic Email Templates</fullName>
+                <default>false</default>
+                <label>Manage Public Classic Email Templates</label>
+            </value>
+            <value>
+                <fullName>Run Reports</fullName>
+                <default>false</default>
+                <label>Run Reports</label>
+            </value>
         </valueSetDefinition>
     </valueSet>
     <visibleLines>4</visibleLines>

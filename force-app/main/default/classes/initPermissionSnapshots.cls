@@ -2,7 +2,6 @@ public class initPermissionSnapshots implements Queueable {
 
 	// init constructor params
 	Map<Map<String, String>, List<Map<String, String>>> nameToPermissionMap = new Map<Map<String, String>, List<Map<String, String>>>();
-	// String configId = new String();
 
 	public initPermissionSnapshots(Map<Map<String, String>, List<Map<String, String>>> nameToPermissionMap){
 

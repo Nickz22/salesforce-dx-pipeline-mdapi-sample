@@ -22,11 +22,6 @@ public with sharing class Constants {
      * Profile
     */
     public static final String ADMIN_PROFILE = 'System Administrator';
-    public static final String ACCOUNT_EXECUTIVE_PROFILE = 'Account Executive';
-    public static final String ACCOUNT_MANAGER_PROFILE = 'Account Manager';
-    public static final String AD_OPERATIONS_PROFILE = 'Ad Operations';
-    public static final String API_USER_PROFILE = 'API User';
-    public static final String PLACED_PROFILE = 'Placed-Sales';
 
     public static Id ADMIN_PROFILE_ID {
         public get {
