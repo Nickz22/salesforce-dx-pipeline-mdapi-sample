@@ -8,6 +8,7 @@ public class InitAuditUtility {
 	static final List<String> objApiNames = getInScopeApiNames();
 	static final List<String> objLabels = getInScopeLabels();
 	static final Map<String, String> scopedMap = getInScopeMap();
+	static final String permissionSetType = 'PermissionSet';
 
 	/*
    * @author          Nick Zozaya
@@ -17,24 +18,50 @@ public class InitAuditUtility {
      */
 	public static void createConfig(List<String> selectedPermissions){
 
+		// initialize Access_Check_Configuration__c
 		D_V__Access_Check_Configuration__c config = new D_V__Access_Check_Configuration__c();
+		
+		// get map {field api name => field label} 
+		Map<String, Schema.SObjectField> fieldMap = getFieldMap(permissionSetType);
 
+		/* 
+		* will contain concatenated api names 
+		 * of selected SystemPermissions
+		*/
 		String sysPerms = '';
 
+		// for each chosen permission
 		for(String s : selectedPermissions){
+			
+			// loop through PermisionSet field api names
+			for(String apiName : fieldMap.keySet()){
 
-			sysPerms += s+'; ';
+				// check if chosen permission is same as label of this PermissionSet field
+				if(s == fieldMap.get(apiName).getDescribe().getLabel()){
+
+					// add this permission to concatenated string
+					sysPerms += apiName+'; ';
+				}
+			}
 		}
 
+		// set value on configuration record
 		config.System_Permissions__c = sysPerms;
 
 		insert config;
 
-		D_V__Access_Check_Configuration__c c = [SELECT D_V__System_Permissions__c FROM D_V__Access_Check_Configuration__c WHERE Id =: config.Id];
+		// init custom setting
+    	D_V__Access_Configuration_Id__c C = new D_V__Access_Configuration_Id__c();
 
-		System.debug('c.SystemPermissions__c: '+c.System_Permissions__c);
+        // set custom setting value
+		C.D_V__Value__c = config.Id;
 
-		System.enqueueJob(new insertConfigId(config.Id));
+        // give current datetime as name
+        C.Name = String.valueOf(datetime.now());
+
+		insert c;
+
+		// System.enqueueJob(new insertConfigId(config.Id));
 	}
 
 	/*
@@ -65,7 +92,7 @@ public class InitAuditUtility {
 		/*
 		** Find any ObjectPermission where ParentId == PermissionSetAssignment.PermissionSetId
 		*/
-		List<ObjectPermissions> allObjectPermissions = [SELECT Id, ParentId, PermissionsRead, PermissionsDelete, PermissionsEdit, PermissionsViewAllRecords, PermissionsModifyAllRecords, SObjectType
+		List<ObjectPermissions> allObjectPermissions = [SELECT Id, ParentId, PermissionsRead, PermissionsCreate, PermissionsDelete, PermissionsEdit, PermissionsViewAllRecords, PermissionsModifyAllRecords, SObjectType
 														FROM ObjectPermissions
 														WHERE (ParentId IN (SELECT PermissionSetId
 																			FROM PermissionSetAssignment
@@ -141,7 +168,7 @@ public class InitAuditUtility {
 				if(loopVar == objPermission.ParentId){
 
 					// store this ObjectPermission's relevant fields in map
-					Map<String, String> currentPermissionMap = new Map<String, String>{ 'currentReadAccess' => String.valueOf(objPermission.PermissionsRead), 'currentEditAccess' => String.valueOf(objPermission.PermissionsEdit), 'currentDelAccess' => String.valueOf(objPermission.PermissionsDelete), 'currentViewAllAccess' => String.valueOf(objPermission.PermissionsViewAllRecords), 'currentModifyAllAccess' => String.valueOf(objPermission.PermissionsModifyAllRecords)};
+					Map<String, String> currentPermissionMap = new Map<String, String>{ 'currentReadAccess' => String.valueOf(objPermission.PermissionsRead), 'currentCreateAccess' => String.valueOf(objPermission.PermissionsCreate), 'currentEditAccess' => String.valueOf(objPermission.PermissionsEdit), 'currentDelAccess' => String.valueOf(objPermission.PermissionsDelete), 'currentViewAllAccess' => String.valueOf(objPermission.PermissionsViewAllRecords), 'currentModifyAllAccess' => String.valueOf(objPermission.PermissionsModifyAllRecords)};
 
 					// overwrite this user's existing objAccessMap entry with updated entry
 					objAccessMaps.put(scopedMap.get(objPermSObjType), newObjPermissionMap(userPermissionByNameMap, userIdMap, currentPermissionMap, objAccessMaps.get(scopedMap.get(objPermSObjType)), scopedMap.get(objPermSObjType)));
@@ -273,7 +300,7 @@ public class InitAuditUtility {
 		for(String objLabel : sObjectTypes){
 
 			// init blank entry for each object
-			objAccessMap = new Map<String, String>{'Read_Access'=>'false', 'Edit_Access'=>'false', 'Delete_Access'=>'false', 'View_All_Data'=>'false', 'Modify_All_Data'=>'false'};
+			objAccessMap = new Map<String, String>{'Read_Access'=>'false', 'Create_Access'=>'false', 'Edit_Access'=>'false', 'Delete_Access'=>'false', 'View_All_Data'=>'false', 'Modify_All_Data'=>'false'};
 
 			// check if user has existing entry for this obj
 			if(userPermissionByNameMap.get(userIdMap)!=null){
@@ -308,19 +335,21 @@ public class InitAuditUtility {
 		
 		// get ObjectPermissions fields
 		String currentRead = currentPermissionMap.get('currentReadAccess');
+		String currentCreate = currentPermissionMap.get('currentCreateAccess');
 		String currentEdit = currentPermissionMap.get('currentEditAccess');
 		String currentDel  = currentPermissionMap.get('currentDelAccess');
 		String currentModifyAllAccess = currentPermissionMap.get('currentModifyAllAccess');
 		String currentViewAllAccess = currentPermissionMap.get('currentViewAllAccess');
 
 		// init empty return map
-		Map<String, String> newObjPermMap = new Map<String, String>{'Read_Access' => 'false', 'Edit_Access' => 'false', 'Delete_Access' => 'false', 'View_All_Data' => 'false', 'Modify_All_Data' => 'false'};
+		Map<String, String> newObjPermMap = new Map<String, String>{'Read_Access' => 'false', 'Create_Access' => 'false', 'Edit_Access' => 'false', 'Delete_Access' => 'false', 'View_All_Data' => 'false', 'Modify_All_Data' => 'false'};
 		
 		// layer this ObjectPermission over this user's in-memory permissions
-		if(currentRead == 'true' || currentEdit == 'true' || currentDel == 'true' || currentModifyAllAccess == 'true' || currentViewAllAccess == 'true'){
+		if(currentRead == 'true' || currentCreate == 'true' || currentEdit == 'true' || currentDel == 'true' || currentModifyAllAccess == 'true' || currentViewAllAccess == 'true'){
 
 			// if additional permissions found, add to return map
 			if(currentRead == 'true'){ newObjPermMap.put('Read_Access', 'true');}else{newObjPermMap.put('Read_Access', storedObjPermMap == null ? 'false' : storedObjPermMap.get('Read_Access'));}
+			if(currentCreate == 'true'){ newObjPermMap.put('Create_Access', 'true');}else{newObjPermMap.put('Create_Access', storedObjPermMap == null ? 'false' : storedObjPermMap.get('Create_Access'));}
 			if(currentEdit == 'true'){ newObjPermMap.put('Edit_Access', 'true');}else{newObjPermMap.put('Edit_Access', storedObjPermMap == null ? 'false' : storedObjPermMap.get('Edit_Access'));}
 			if(currentDel == 'true'){ newObjPermMap.put('Delete_Access', 'true');}else{newObjPermMap.put('Delete_Access', storedObjPermMap == null ? 'false' : storedObjPermMap.get('Delete_Access'));}
 			if(currentViewAllAccess == 'true'){ newObjPermMap.put('View_All_Data', 'true');}else{newObjPermMap.put('View_All_Data', storedObjPermMap == null ? 'false' : storedObjPermMap.get('View_All_Data'));}
@@ -347,7 +376,7 @@ public class InitAuditUtility {
 
 		// user id for each permission map
 		for(Map<String, String> key : userPermissionByNameMap.keyset()){ 
-			
+
 			userIds.add(key.get('UserId'));
 		}
 
@@ -365,9 +394,9 @@ public class InitAuditUtility {
 			currentUserPermissionSnapshot.D_V__View_All_Access__c = '';
 			currentUserPermissionSnapshot.D_V__Delete_Access__c = '';
 			currentUserPermissionSnapshot.D_V__Edit_Access__c = '';
+			currentUserPermissionSnapshot.D_V__Create_Access__c = '';
 			currentUserPermissionSnapshot.D_V__Read_Access__c = '';
 
-			
 			// grab user's access to each obj
 			List<Map<String, String>> objPermissionsList = userPermissionByNameMap.get(key);
 
@@ -378,11 +407,12 @@ public class InitAuditUtility {
 				String sObjType = objPermission.get('SObjectType');
 
 				// update snapshot
-				if(objPermission.get('Modify_All_Data') == 'true' && !(currentUserPermissionSnapshot.Modify_All_Access__c.contains(sObjType))) currentUserPermissionSnapshot.Modify_All_Access__c += sObjType+'; ';
-				if(objPermission.get('View_All_Data') == 'true' && !(currentUserPermissionSnapshot.View_All_Access__c.contains(sObjType))) currentUserPermissionSnapshot.View_All_Access__c += sObjType+'; ';
-				if(objPermission.get('Delete_Access') == 'true' && !(currentUserPermissionSnapshot.Delete_Access__c.contains(sObjType))) currentUserPermissionSnapshot.Delete_Access__c += sObjType+'; ';
-				if(objPermission.get('Edit_Access') == 'true' && !(currentUserPermissionSnapshot.Edit_Access__c.contains(sObjType))) currentUserPermissionSnapshot.Edit_Access__c += sObjType+'; ';
-				if(objPermission.get('Read_Access') == 'true' && !(currentUserPermissionSnapshot.Read_Access__c.contains(sObjType))) currentUserPermissionSnapshot.Read_Access__c += sObjType+'; ';
+				if(objPermission.get('Modify_All_Data') == 'true' && !(currentUserPermissionSnapshot.D_V__Modify_All_Access__c.contains(sObjType))) currentUserPermissionSnapshot.D_V__Modify_All_Access__c += sObjType+'; ';
+				if(objPermission.get('View_All_Data') == 'true' && !(currentUserPermissionSnapshot.D_V__View_All_Access__c.contains(sObjType))) currentUserPermissionSnapshot.D_V__View_All_Access__c += sObjType+'; ';
+				if(objPermission.get('Delete_Access') == 'true' && !(currentUserPermissionSnapshot.D_V__Delete_Access__c.contains(sObjType))) currentUserPermissionSnapshot.D_V__Delete_Access__c += sObjType+'; ';
+				if(objPermission.get('Edit_Access') == 'true' && !(currentUserPermissionSnapshot.D_V__Edit_Access__c.contains(sObjType))) currentUserPermissionSnapshot.D_V__Edit_Access__c += sObjType+'; ';
+				if(objPermission.get('Create_Access') == 'true' && !(currentUserPermissionSnapshot.D_V__Create_Access__c.contains(sObjType))) currentUserPermissionSnapshot.D_V__Create_Access__c += sObjType+'; ';
+				if(objPermission.get('Read_Access') == 'true' && !(currentUserPermissionSnapshot.D_V__Read_Access__c.contains(sObjType))) currentUserPermissionSnapshot.D_V__Read_Access__c += sObjType+'; ';
 			}
 
 			// add users snapshot to return map
@@ -427,13 +457,8 @@ public class InitAuditUtility {
 		// dyanamic SOQL
 		Map<Id, PermissionSet> allPermissionSets = new Map<Id, PermissionSet>((List<PermissionSet>) Database.query(queryString));
 
-		// init Schema.SObjectType param
-		final String objType = 'PermissionSet';
-
 		// get map {field api name => field label}
-		Map<String, Schema.SObjectType> schemaMap = Schema.getGlobalDescribe();
-		Schema.SObjectType schema = schemaMap.get(objType);
-		Map<String, Schema.SObjectField> fieldMap = schema.getDescribe().fields.getMap();
+		Map<String, Schema.SObjectField> fieldMap = getFieldMap(permissionSetType);
 
 		// init update list
 		List<User_Permissions_Snapshot__c> updateSnapshots = new List<User_Permissions_Snapshot__c>();
@@ -495,4 +520,15 @@ public class InitAuditUtility {
         User autoProc = [SELECT Email FROM User WHERE Email LIKE 'autoproc@%' LIMIT 1];
         return autoProc.Email;
     }
+
+	public static Map<String, Schema.SObjectField> getFieldMap(String SObjType){
+
+		// get map {field api name => field label}
+		Map<String, Schema.SObjectType> schemaMap = Schema.getGlobalDescribe();
+		Schema.SObjectType schema = schemaMap.get(SObjType);
+		Map<String, Schema.SObjectField> fieldMap = schema.getDescribe().fields.getMap();
+
+		return fieldMap;
+
+	}
 }

@@ -2,20 +2,20 @@ public class initAuditReview {
 
 	/*
    * @author          Nick Zozaya
-     * @description     Get relevant PermissionSet fields.
-   * @return          Set<String>
-     * @param         
-     */
+     * @description     Get relevant PermissionSet fields for Access Check UI.
+   * @return          List<String>
+     * @param         	
+	 */
 	@AuraEnabled
 	public static List<String> getPermissionSetFields(){
 
 		List<String> returnFields = new List<String>();
 
-		Map<String, Schema.SObjectField> fieldMap = PermissionSet.SObjectType.getDescribe().fields.getMap();
+		Map<String, Schema.SObjectField> fieldMap = initAuditUtility.getFieldMap('PermissionSet');
 
 		for(String key : fieldMap.keyset()){
 			
-			if(key.contains('permissions')) returnFields.add(key);
+			if(key.contains('permissions')) returnFields.add(fieldMap.get(key).getDescribe().getLabel());
 		}
 
 		return returnFields;
@@ -23,9 +23,9 @@ public class initAuditReview {
 
 	/*
    * @author          Nick Zozaya
-     * @description     Dispatch DML operations as a result of Audit__c creation.
+     * @description     Dispatch DML operations associated with Launch Access Check button.
    * @return          void
-     * @param           String auditId
+     * @param           List<String> selectedPermissions
      */
 	@AuraEnabled
 	public static void createAuditObjects(List<String> selectedPermissions){
@@ -46,8 +46,8 @@ public class initAuditReview {
 		}else{
 
 			/*
-			 * only runs during test
-			*/
+			  * only runs during test
+			 */
 
 			// aggregate object-permissions at user level
 			System.enqueueJob(new aggregateObjectPermissions(allObjectPermissions, permSetAssignments, nameToPermissionMap));

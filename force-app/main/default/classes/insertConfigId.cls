@@ -11,7 +11,7 @@ public class insertConfigId implements Queueable {
 	}
 
     public void execute(QueueableContext context) {
-        
+      /*  
         // init custom setting
     	D_V__Access_Configuration_Id__c config = new D_V__Access_Configuration_Id__c();
 
@@ -22,8 +22,9 @@ public class insertConfigId implements Queueable {
         config.Name = String.valueOf(datetime.now());
 
 		insert config;
-
+       
         System.debug('insert custom setting: '+config);
+         */
 
 	}
 }
