@@ -515,20 +515,19 @@ public class InitAuditUtility {
 
 		update updateSnapshots;
 	}	
-
-	public static String getAutoProcUserEmail(){
-        User autoProc = [SELECT Email FROM User WHERE Email LIKE 'autoproc@%' LIMIT 1];
-        return autoProc.Email;
-    }
-
+	
+	/*
+   * @author          Nick Zozaya
+     * @description     Method to get a certain SObjectType's field schema map
+   * @return          Map<String, Schema.SObjectField>
+     * @param           String SObjType
+     */
 	public static Map<String, Schema.SObjectField> getFieldMap(String SObjType){
 
-		// get map {field api name => field label}
 		Map<String, Schema.SObjectType> schemaMap = Schema.getGlobalDescribe();
 		Schema.SObjectType schema = schemaMap.get(SObjType);
 		Map<String, Schema.SObjectField> fieldMap = schema.getDescribe().fields.getMap();
 
 		return fieldMap;
-
 	}
 }
