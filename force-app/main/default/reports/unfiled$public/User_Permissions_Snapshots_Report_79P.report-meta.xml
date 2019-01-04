@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>User_Permissions_Snapshot__c$CreatedDate</field>
+    </columns>
+    <columns>
+        <field>User_Permissions_Snapshot__c$Read_Access__c</field>
+    </columns>
+    <columns>
+        <field>User_Permissions_Snapshot__c$Create_Access__c</field>
+    </columns>
+    <columns>
+        <field>User_Permissions_Snapshot__c$Edit_Access__c</field>
+    </columns>
+    <columns>
+        <field>User_Permissions_Snapshot__c$Delete_Access__c</field>
+    </columns>
+    <columns>
+        <field>User_Permissions_Snapshot__c$View_All_Access__c</field>
+    </columns>
+    <columns>
+        <field>User_Permissions_Snapshot__c$Modify_All_Access__c</field>
+    </columns>
+    <columns>
+        <field>User_Permissions_Snapshot__c$System_Permissions__c</field>
+    </columns>
+    <filter>
+        <criteriaItems>
+            <column>User_Permissions_Snapshot__c$System_Permissions__c</column>
+            <isUnlocked>true</isUnlocked>
+            <operator>includes</operator>
+            <value>Customize Application</value>
+        </criteriaItems>
+    </filter>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>User_Permissions_Snapshot__c$User__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>User Permissions Snapshots Report</name>
+    <params>
+        <name>co</name>
+        <value>1</value>
+    </params>
+    <reportType>User_Permissions_Snapshots__c</reportType>
+    <scope>organization</scope>
+    <showDetails>true</showDetails>
+    <timeFrameFilter>
+        <dateColumn>User_Permissions_Snapshot__c$CreatedDate</dateColumn>
+        <interval>INTERVAL_CUSTOM</interval>
+    </timeFrameFilter>
+</Report>
