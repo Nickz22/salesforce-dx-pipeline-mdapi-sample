@@ -1,53 +1,66 @@
-<aura:component implements="flexipage:availableForAllPageTypes, force:appHostable" controller="initAuditReview">
+<aura:component implements="flexipage:availableForAllPageTypes, force:appHostable, force:hasRecordId" controller="initAuditReview">
     <aura:handler name="init" value="{!this}" action="{!c.getPermSetFields}"/>
+    <!--recordId will inform system if component is being rendered in Access_Check_Configuration__c record page-->
+    <aura:attribute name="recordId" type="String" default=""/>
     <aura:attribute name="permissions" type="List"/>
     <aura:attribute name="showSelectedPermissions" type="Boolean" default="false"/>
     <aura:attribute name="values" type="List"/>
     <aura:attribute name="scrollerDivTop" type="Integer"/>
     <aura:attribute name="scrollerDivTopSet" type="Boolean" default="false"/>
     <aura:attribute name="scrollerDivLeft" type="Integer"/>
+    <aura:attribute name="scrollerDivBottom" type="Integer"/>
     <aura:attribute name="dynamicStyles" type="String"/>
     <aura:attribute name="chosenPerms" type="String[]" default="selected permissions will appear here"/>
     <aura:attribute name="headerTitle" type="Aura.Component[]">
-            <p class="slds-text-heading_small"><b>Access Checker Setup</b> </p>
+            <p class="slds-text-heading_small"><b>Access Checker Setup {!v.recordId}</b> </p>
     </aura:attribute>
     <aura:attribute name="checkboxGroupLabel" type="String" default="System Permissions"/>
+    <aura:if isTrue="{!v.recordId == ''}">
 
-    <div style="width: 50%; height: 500px; position: absolute; left: 25%;" onmouseover="{!c.handleMouseOver}" aura:id="container-div">
-        <ui:scrollerWrapper class="scrollerSize">
-            <lightning:card title="{!v.headerTitle}">
-                <div class="slds-p-around_medium" style="padding-top: -1em; margin-top: -.5em; box-shadow: 0px -25px 4px -24px #fe840e;" aura:id="outer-div">
-                    Complete the below 3 steps <b>in the given order</b> to run the Access Checker app:
-                    <ol class="slds-list--ordered">			
-                        <li>
-                            Create an instance of the <b>In-Scope Objects</b> custom metadata type for each object you'd like included in your access evaluation.
-                        </li>
-                        <li>
-                            Choose which System Permissions you'd like to include in your access evaluation below. Your selections will be persisted via the <b>Access_Check_Configuration__c</b> object for easy re-running of the Access Checker app using the same configurations.
-                        </li>
-                    </ol>
-                </div>
-                <div class="slds-grid slds-gutters slds-p-left_medium" style="padding-left: 10%;">
-                    <div class="slds-col slds-size_6-of-10" aura:id="checkboxGroup">
-                        <p class="slds-text-heading_small">{!v.checkboxGroupLabel}</p>
-                        <lightning:checkboxGroup name="In-Scope Permissions"
-                                                options="{!v.permissions}"
-                                                value="{!v.values}"
-                                                onchange="{!c.handleSelect}"
-                                                required="false"
-                                                aura:id="myGroup"/>
+        <div style="width: 50%; height: 500px; position: absolute; left: 25%;" onmouseover="{!c.handleMouseOver}" aura:id="container-div">
+            <ui:scrollerWrapper class="scrollerSize">
+                <lightning:card title="{!v.headerTitle}">
+                    <div class="slds-p-around_medium" style="padding-top: -1em; margin-top: -.5em; box-shadow: 0px -25px 4px -24px #fe840e;" aura:id="outer-div">
+                        <p>Complete the below 3 steps <b>in the given order</b> to run the Access Checker app:</p><br/>
+                        <ol class="slds-list--ordered">			
+                            <li>
+                                Create an instance of the <b>In-Scope Objects</b> custom metadata type for each object you'd like included in your access evaluation.
+                            </li>
+                            <li>
+                                Choose which System Permissions you'd like to include in your access evaluation below. An <b>Access Check Configuration</b> record will be created for easy re-running of the Access Checker app using the same System Permissions selections.
+                            </li>
+                            <li>
+                                Click the <b>Launch Access Checker</b> button below to create User Permission Snapshots for each active User in your org.
+                            </li>
+                        </ol>
                     </div>
-                    <div class="slds-col slds-size_4-of-10 slds-p-around_medium" style="{! 'top: '+ v.scrollerDivTop + 'px; left: ' + v.scrollerDivLeft + 'px; '+ v.dynamicStyles + ';' }" aura:id="selected-permissions">
-                        <b>Selected Permissions</b>
-                        <aura:iteration items="{!v.chosenPerms}" var="p">
-                            <br/> {!p}
-                        </aura:iteration>
+                    <div class="slds-grid slds-gutters slds-p-left_x-large">
+                        <div class="slds-col slds-size_6-of-10" aura:id="checkboxGroup">
+                            <p class="slds-text-heading_small">{!v.checkboxGroupLabel}</p>
+                            <lightning:checkboxGroup name="In-Scope Permissions"
+                                                    options="{!v.permissions}"
+                                                    value="{!v.values}"
+                                                    onchange="{!c.handleSelect}"
+                                                    required="false"
+                                                    aura:id="myGroup"/>
+                        </div>
+                        <div class="slds-col slds-size_4-of-10 slds-p-top_medium" style="{! 'top: '+ v.scrollerDivTop + 'px; left: ' + v.scrollerDivLeft + 'px; ' + v.dynamicStyles + ';' }" aura:id="selected-permissions">
+                            <b>Selected Permissions</b>
+                            <aura:iteration items="{!v.chosenPerms}" var="p">
+                                <p class="slds-text-body_small">{!p}</p>
+                            </aura:iteration>
+                        </div>
                     </div>
-                </div>
-                <div class="slds-align_absolute-center">
-                    <lightning:button variant="brand" label="Launch Access Checker" title="Launch" onclick="{!c.launchAccessChecker}"/>
-                </div>
+                    <div class="slds-align_absolute-center">
+                        <lightning:button variant="brand" label="Launch Access Checker" title="launch" onclick="{!c.launchAccessChecker}"/>
+                    </div>
+                </lightning:card>
+            </ui:scrollerWrapper>
+        </div>
+        <aura:set attribute="else">
+            <lightning:card title="test">
+                <lightning:button variant="neutral" label="Launch Access Checker" title="configLaunch" onclick="{!c.launchAccessChecker}"/>
             </lightning:card>
-        </ui:scrollerWrapper>
-    </div>
+        </aura:set>
+    </aura:if>
 </aura:component>	

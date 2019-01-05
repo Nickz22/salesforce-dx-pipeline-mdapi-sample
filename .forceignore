@@ -4,3 +4,7 @@
 
 package.xml
 AppSwitcher.appMenu
+
+# dont track profiles
+force-app/main/default/profiles/*
+

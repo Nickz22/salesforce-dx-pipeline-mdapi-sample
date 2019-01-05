@@ -25,13 +25,27 @@ public class initAuditReview {
    * @author          Nick Zozaya
      * @description     Dispatch DML operations associated with Launch Access Check button.
    * @return          void
-     * @param           List<String> selectedPermissions
+     * @param           List<String> selectedPermissions, String configId
      */
 	@AuraEnabled
-	public static void createAuditObjects(List<String> selectedPermissions){
+	public static void createAuditObjects(List<String> selectedPermissions, String configId){
 
-		// create config object to persis selected permissions
-		initAuditUtility.createConfig(selectedPermissions);
+		System.debug('configId is: '+configId);
+		
+		// check where launch occurred
+		if(configId == '' || configId == null){
+			/* 
+			* launched from app homepage, 
+			 * create Access Check Configuration
+			*/
+			initAuditUtility.createConfig(selectedPermissions);
+		}else{
+			/*
+			* launch from config record page,
+			 * find Access Check Configuration
+			*/
+			initAuditUtility.reuseConfig(configId);
+		}
 
 		// get all active PermissionSetAssignments
 		List<PermissionSetAssignment> permSetAssignments = [SELECT AssigneeId, PermissionSetId, Assignee.Name FROM PermissionSetAssignment WHERE Assignee.IsActive = true];
@@ -48,11 +62,9 @@ public class initAuditReview {
 			System.enqueueJob(new aggregateObjectPermissions(allObjectPermissions, permSetAssignments, nameToPermissionMap));
 
 		}else{
-
 			/*
 			  * only runs during test
 			 */
-
 			// aggregate object-permissions at user level
 			System.enqueueJob(new aggregateObjectPermissions(allObjectPermissions, permSetAssignments, nameToPermissionMap));
 

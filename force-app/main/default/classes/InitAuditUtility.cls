@@ -17,7 +17,7 @@ public class InitAuditUtility {
      * @param           Set<String> revieweeIds
      */
 	public static void createConfig(List<String> selectedPermissions){
-
+		
 		// initialize Access_Check_Configuration__c
 		D_V__Access_Check_Configuration__c config = new D_V__Access_Check_Configuration__c();
 		
@@ -51,17 +51,35 @@ public class InitAuditUtility {
 		insert config;
 
 		// init custom setting
-    	D_V__Access_Configuration_Id__c C = new D_V__Access_Configuration_Id__c();
+    	D_V__Access_Configuration_Id__c c = new D_V__Access_Configuration_Id__c();
 
         // set custom setting value
-		C.D_V__Value__c = config.Id;
+		c.D_V__Value__c = config.Id;
 
         // give current datetime as name
-        C.Name = String.valueOf(datetime.now());
+        c.Name = String.valueOf(datetime.now());
 
 		insert c;
+	}
 
-		// System.enqueueJob(new insertConfigId(config.Id));
+	/*
+   * @author          Nick Zozaya
+     * @description     Method to find existing Access Check Configuration
+   * @return          void
+     * @param           String configId
+     */
+	public static void reuseConfig(String configId){
+
+		// init custom setting
+    	D_V__Access_Configuration_Id__c c = new D_V__Access_Configuration_Id__c();
+		
+		// set custom setting value
+		c.D_V__Value__c = configId;
+
+        // give current datetime as name
+        c.Name = String.valueOf(datetime.now());
+
+		insert c;
 	}
 
 	/*
@@ -230,7 +248,7 @@ public class InitAuditUtility {
 		if(scope.size() > 0){
 
 			for(D_V__In_Scope_Object__mdt inScopeObject : scope){
-				
+
 				apiNames.add(inScopeObject.D_V__Api_Name__c);
 			}
 		}else{
