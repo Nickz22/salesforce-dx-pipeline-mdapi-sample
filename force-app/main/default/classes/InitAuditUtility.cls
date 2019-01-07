@@ -145,8 +145,7 @@ public class InitAuditUtility {
 
 			// get parent PermSetId
 			loopVar = pSa.PermissionSetId;
-			System.debug('loopVar is: '+loopVar);
-
+			
 			// this will hold Id of Assignee
 			Map<String,String> userIdMap = new Map<String,String>();
 

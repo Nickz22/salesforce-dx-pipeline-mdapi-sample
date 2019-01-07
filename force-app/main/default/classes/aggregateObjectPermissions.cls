@@ -19,7 +19,7 @@ public class aggregateObjectPermissions implements Queueable {
        /* 
          * run permission aggregation algorithm
         */
-        if(!Test.isRunningTest()){ 
+        if(!Test.isRunningTest()){
 
         	List<ObjectPermissions> batchObjectPermissions = new List<ObjectPermissions>();
 

@@ -29,8 +29,6 @@ public class initAuditReview {
      */
 	@AuraEnabled
 	public static void createAuditObjects(List<String> selectedPermissions, String configId){
-
-		System.debug('configId is: '+configId);
 		
 		// check where launch occurred
 		if(configId == '' || configId == null){
@@ -42,13 +40,14 @@ public class initAuditReview {
 		}else{
 			/*
 			* launch from config record page,
-			 * find Access Check Configuration
+			 * reuse Access Check Configuration
 			*/
 			initAuditUtility.reuseConfig(configId);
 		}
 
 		// get all active PermissionSetAssignments
 		List<PermissionSetAssignment> permSetAssignments = [SELECT AssigneeId, PermissionSetId, Assignee.Name FROM PermissionSetAssignment WHERE Assignee.IsActive = true];
+		System.debug('permSetAssignments.size() : '+permSetAssignments.size());
 		
 		// get all in-scope ObjectPermissions (defined by In_Scope_Object_mdt records)
 		List<ObjectPermissions> allObjectPermissions = initAuditUtility.getAllObjectPermissions();
@@ -65,17 +64,22 @@ public class initAuditReview {
 			/*
 			  * only runs during test
 			 */
-			// aggregate object-permissions at user level
+
+			// dummy call queueable
 			System.enqueueJob(new aggregateObjectPermissions(allObjectPermissions, permSetAssignments, nameToPermissionMap));
 
+			// execute aggregateObjectPermissions logic
 			nameToPermissionMap = initAuditUtility.findUarUserAccess(allObjectPermissions, permSetAssignments, nameToPermissionMap);
 
 			// create permission snapshot records
 			System.enqueueJob(new initPermissionSnapshots(nameToPermissionMap));
-			// to update System_Permissions__c, return new User Permission Snapshots    
+
+			// to update User_Permission_Snapshot__c.System_Permissions__c, return new User Permission Snapshots    
 			Map<Id, User_Permissions_Snapshot__c> newSnapshots = initAuditUtility.newSnapshotPermissions(nameToPermissionMap);
+
 			// init batch container
-			Map<Id, User_Permissions_Snapshot__c> batchedSnapshots = new Map<Id, User_Permissions_Snapshot__c>();	        
+			Map<Id, User_Permissions_Snapshot__c> batchedSnapshots = new Map<Id, User_Permissions_Snapshot__c>();	       
+			 
 			// queue batch update
 	    System.enqueueJob(new getSnapshotSystemPermissions(batchedSnapshots, newSnapshots));
 

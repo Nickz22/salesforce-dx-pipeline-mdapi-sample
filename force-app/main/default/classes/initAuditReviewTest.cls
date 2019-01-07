@@ -1,122 +1,200 @@
 @isTest (SeeAllData=false)
 private class initAuditReviewTest {
 
-	// static final String alias = 'sys_adm';
+	static final List<String> homeLaunchPermissions = new List<String>{'Send Email', 'Mass Email', 'Edit Tasks'};
 
+	/*
+   * @author          Nick Zozaya
+     * @description     Test Access Check launch from app homepage
+   * @return          Void
+     * @param         	
+	 */
 	@isTest (SeeAllData=false)
 	static void createAuditObjectsTest() {
 
-		initAuditReview.createAuditObjects();
-	/*
-		Map<Id, User_Permissions_Snapshot__c> snapshots = new Map<Id, User_Permissions_Snapshot__c>([SELECT Id FROM User_Permissions_Snapshot__c]);
+		// create access check configuration
+		initAuditReview.createAuditObjects(homeLaunchPermissions, '');
 
-		List<PermissionSetAssignment> pSa = [SELECT PermissionSetId, AssigneeId FROM PermissionSetAssignment WHERE AssigneeId=:uarUsers[0].User__c ];
+		// get new snapshots
+		Map<Id, User_Permissions_Snapshot__c> snapshots = new Map<Id, User_Permissions_Snapshot__c>([SELECT Id, User__c, Read_Access__c, Create_Access__c, Edit_Access__c, Delete_Access__c, View_All_Access__c, Modify_All_Access__c, System_Permissions__c FROM User_Permissions_Snapshot__c]);
 
-		System.assert(pSa != null, 'pSa is null');
+		// get active users
+		List<User> activeUsers = [SELECT Id, Profile.Name FROM User WHERE IsActive = TRUE AND Profile.Name != null];
 
+		// get active user PermissionSetAssignments
+		List<PermissionSetAssignment> assignments = [SELECT PermissionSetId, AssigneeId FROM PermissionSetAssignment WHERE Assignee.IsActive = true];
+
+		// ensure correct amount of snapshots were created
+		System.assertEquals(activeUsers.size(), snapshots.size(), 'incorrect snapshot quantity detected');
+
+		// get in-scope objects, defined by In_Scope_Object_mdt
 		Map<String, String> scopedObjMap = initAuditUtility.getInScopeMap();
-		
-		List<ObjectPermissions> objPerms = [SELECT SObjectType, PermissionsRead, PermissionsEdit, PermissionsDelete, PermissionsModifyAllRecords, PermissionsViewAllRecords
+
+		// get active users ObjectPermissions
+		List<ObjectPermissions> objPerms = [SELECT SObjectType, ParentId, PermissionsRead, PermissionsCreate, PermissionsEdit, PermissionsDelete, PermissionsModifyAllRecords, PermissionsViewAllRecords
 				 							  FROM ObjectPermissions
-				 							 WHERE ParentId =: pSa[0].PermissionSetId AND SobjectType IN: scopedObjMap.keyset()];
+				 							 WHERE ParentId IN (SELECT PermissionSetId FROM PermissionSetAssignment WHERE Assignee.IsActive = true) 
+											  AND SobjectType IN: scopedObjMap.keyset()];
 
-		User_Permissions_Snapshot__c uPs = [SELECT Read_Access__c, Edit_Access__c, Delete_Access__c, View_All_Access__c, Modify_All_Access__c, User__c, User__r.LastName FROM User_Permissions_Snapshot__c WHERE User__c=: uarUsers[0].User__c];
-		
-		System.assert(uPs != null, 'no snapshot with given UserId found');
-		System.debug('uPs: ' +uPs);
-/*
- * begin snapshot --> ObjectPermissions assertions
-*/
-	/*
-		// if null field we shouldnt assert from snapshot
-		if(uPs.Read_Access__c != null) validateSnapshotField('read', uPs.Read_Access__c.split(';'), objPerms, scopedObjMap);
-		if(uPs.Edit_Access__c != null) validateSnapshotField('edit', uPs.Edit_Access__c.split(';'), objPerms, scopedObjMap);
-		if(uPs.Delete_Access__c != null) validateSnapshotField('delete', uPs.Delete_Access__c.split(';'), objPerms, scopedObjMap);
-		if(uPs.View_All_Access__c != null) validateSnapshotField('viewAll', uPs.View_All_Access__c.split(';'), objPerms, scopedObjMap);
-		if(uPs.Modify_All_Access__c != null) validateSnapshotField('modifyAll',uPs.Modify_All_Access__c.split(';'), objPerms, scopedObjMap);
+		Map<Id, List<ObjectPermissions>> userToPermission = new Map<Id, List<ObjectPermissions>>();
 
-/*
- * begin ObjectPermissions --> snapshot assertions
-*/
-	/*	Integer i = 0;
+		List<ObjectPermissions> lo = new List<ObjectPermissions>();
+		String uId;
 
-		for(ObjectPermissions objPerm : objPerms){		
+		// give ObjectPermissions a PermissionSetAssignment.AssigneeId key
+		for(PermissionSetAssignment p : assignments){
 
-			i++;		 				 
+			// refresh our list container
+			lo = new List<ObjectPermissions>();
+			// keep assigneeId
+			uId = p.AssigneeId;
 
-			String objLabel = scopedObjMap.get(objPerm.SObjectType);
-
-			if(objPerm.PermissionsRead){
-
-				System.assertEquals(uPs.Read_Access__c.contains(objLabel), true, 'snapshot missing objPerm Read access...objLabel that wasnt found in snapshot: '+objLabel);
-
-			}
-
-			if(objPerm.PermissionsEdit){
-
-			 	System.assertEquals(uPs.Edit_Access__c.contains(objLabel), true, 'snapshot missing objPerm Edit access');
-
-			}
-
-			if(objPerm.PermissionsDelete){
-
-			 	System.assertEquals(uPs.Delete_Access__c.contains(objLabel), true, 'snapshot missing objPerm Delete access');
-
-			}
-
-			if(objPerm.PermissionsModifyAllRecords){
-
-			 	System.assertEquals(uPs.Modify_All_Access__c.contains(objLabel), true, 'snapshot missing objPerm Modify All Access__c access');
-
-			}
-
-			if(objPerm.PermissionsViewAllRecords){
-
-				System.assertEquals(uPs.View_All_Access__c.contains(objLabel), true, 'snapshot missing objPerm View All Access access');
-			
-			}
-		}
-	}
-
-	public static void validateSnapshotField(String accessLvl, List<String> field, List<ObjectPermissions> objPerms, Map<String, String> scopedObjMap){
-	
-		Boolean foundObj;
-
-		for(String s : field){
-
-			foundObj = false;
-
-			for(ObjectPermissions objPerm : objPerms){
-
-				if(scopedObjMap.get(objPerm.SObjectType) == s){
-
-					foundObj = true;
-
-					if(accessLvl == 'read'){
-
-						System.assertEquals(true, objPerm.PermissionsRead, 'read permissions missing from ObjectPermissions');
+			// look for matching ObjectPermissions
+			for(ObjectPermissions o : objPerms){
+				
+				// compare o and p PermissionSetId
+				if(o.ParentId == p.PermissionSetId){
 					
-					}else if(accessLvl == 'edit'){
-					
-						System.assertEquals(true, objPerm.PermissionsEdit, 'edit permissions missing from ObjectPermissions');
-					
-					}else if(accessLvl == 'delete'){
-
-						System.assertEquals(true, objPerm.PermissionsDelete, 'delete permissions missing from ObjectPermissions');
-
-					}else if( accessLvl == 'viewAll'){
-
-						System.assertEquals(true, objPerm.PermissionsViewAllRecords, 'viewAll permissions missing from ObjectPermissions');
-					
-					}else if( accessLvl == 'modifyAll'){
-
-						System.assertEquals(true, objPerm.PermissionsRead, 'read permissions missing from ObjectPermissions');
-
-					}
+					// add matching obj perm to container
+					lo.add(o);
 				}
 			}
 
-			System.assertEquals(true, foundObj, 'didnt find ObjectPermission SObjectType in snapshot.Read_Access__c');
+			// check for existing entry for this user
+			if(userToPermission.get(uId) == null){
+				
+				// add first key-value set
+				userToPermission.put(uId, lo);
+			}else{
+				
+				// get user's in-memory permissions
+				List<ObjectPermissions> currentPerms = userToPermission.get(uId);
+
+				// add this ObjectPermissions list to in-memory list
+				currentPerms.addAll(lo);
+
+				// update in-memory list
+				userToPermission.put(uId, currentPerms);
+			}
 		}
-	*/}
+
+		/* 
+		  * ObjectPermissions -->  User_Permissions_Snapshot__c validation
+		 */
+		for(User_Permissions_Snapshot__c u : snapshots.values()){
+			
+			// containers for snapshot fields
+			List<String> read = u.Read_Access__c == null ? new List<String>() : u.Read_Access__c.split(';');
+			List<String> create = u.Create_Access__c == null ? new List<String>() : u.Create_Access__c.split(';');
+			List<String> edit = u.Edit_Access__c == null ? new List<String>() : u.Edit_Access__c.split(';');
+			List<String> d = u.Delete_Access__c == null ? new List<String>() : u.Delete_Access__c.split(';');
+			List<String> viewAll = u.View_All_Access__c == null ? new List<String>() : u.View_All_Access__c.split(';');
+			List<String> modifyAll = u.Modify_All_Access__c == null ? new List<String>() : u.Modify_All_Access__c.split(';');
+
+			// loop through user Ids
+			for(String assignee : userToPermission.keyset()){
+				
+				// found snapshot user
+				if(assignee == u.User__c){
+					
+					// loop through user's in-memory ObjectPermissions
+					for(ObjectPermissions o : userToPermission.get(assignee)){
+
+						// isolate ObjectPermissions type
+						String type = o.SobjectType;
+						System.debug('this type is: '+type);
+						System.debug('this ObjectPermission Id: '+o.Id);
+
+						// assert snapshot fields based on ObjectPermission fields
+						if(o.PermissionsRead){
+							
+							// ensure snapshot reflects permissions in ObjectPermission
+							System.assertEquals(true, u.Read_Access__c.contains(type), '<---- snapshot read field inconsistency detected ----> \n ObjectPermission read: '+o.PermissionsRead+'\n snapshot read: '+u.Read_Access__c);
+
+							/*
+							* explanation of validation method involving removing values from String representation of snapshot fields ☞ 4513e9a0-9197-4fc2-8101-5bbb864bcce3
+							 */
+
+							/*
+							* check if this type has already been removed - this will be true if an ObjectPermission has already
+							* granted this level of access. In this case, we don't need to re-remove the type.
+							*/
+							if(read.indexOf(type) != -1){
+
+									// remove the SObjectType we just checked
+									String s = read.remove(read.indexOf(type));
+									System.assertEquals(type, s, 'incorrect entry removed');		
+							}
+						}
+						if(o.PermissionsCreate){
+
+							System.assertEquals(true, u.Create_Access__c.contains(type), '<---- snapshot create field inconsistency detected ----> \n ObjectPermission create: '+o.PermissionsCreate+'\n snapshot create: '+u.Create_Access__c);
+							
+							if(create.indexOf(type) != -1){
+
+									// remove the SObjectType we just checked
+									String s = create.remove(create.indexOf(type));
+									System.assertEquals(type, s, 'incorrect entry removed');		
+							}
+						}
+						if(o.PermissionsEdit){
+							
+							System.assertEquals(true, u.Edit_Access__c.contains(type), '<---- snapshot edit field inconsistency detected ----> \n ObjectPermission edit: '+o.PermissionsEdit+'\n snapshot edit: '+u.Edit_Access__c);
+
+							if(edit.indexOf(type) != -1){
+
+									// remove the SObjectType we just checked
+									String s = edit.remove(edit.indexOf(type));
+									System.assertEquals(type, s, 'incorrect entry removed');		
+							}
+						}
+						if(o.PermissionsDelete){
+
+							System.assertEquals(true, u.Delete_Access__c.contains(type), '<---- snapshot delete field inconsistency detected ----> \n ObjectPermission delete: '+o.PermissionsDelete+'\n snapshot delete: '+u.Delete_Access__c);
+
+							if(d.indexOf(type) != -1){
+
+									// remove the SObjectType we just checked
+									String s = d.remove(d.indexOf(type));
+									System.assertEquals(type, s, 'incorrect entry removed');		
+							}
+						}
+						if(o.PermissionsViewAllRecords){
+
+							System.assertEquals(true, u.View_All_Access__c.contains(type), '<---- snapshot view all field inconsistency detected ----> \n ObjectPermission view all: '+o.PermissionsViewAllRecords+'\n snapshot view all: '+u.View_All_Access__c);
+
+							if(viewAll.indexOf(type) != -1){
+
+									// remove the SObjectType we just checked
+									String s = viewAll.remove(viewAll.indexOf(type));
+									System.assertEquals(type, s, 'incorrect entry removed');		
+							}
+						}
+						if(o.PermissionsModifyAllRecords){
+
+							System.assertEquals(true, u.Modify_All_Access__c.contains(type), '<---- snapshot read field inconsistency detected ----> \n ObjectPermission modify all: '+o.PermissionsModifyAllRecords+'\n snapshot modify all: '+u.Modify_All_Access__c);
+
+							if(modifyAll.indexOf(type) != -1){
+
+									// remove the SObjectType we just checked
+									String s = modifyAll.remove(modifyAll.indexOf(type));
+									System.assertEquals(type, s, 'incorrect entry removed');		
+							}
+						}
+					}
+				}
+			}
+		/*
+		* validate User_Permission_Snapshot__c 
+		 * for excessive permissions.
+		*/
+		System.assertEquals(read.size(), 0, 'snapshot read excessive permissions detected: '+read);
+		System.assertEquals(create.size(), 0, 'snapshot create excessive permissions detected: '+create);
+		System.assertEquals(edit.size(), 0, 'snapshot edit excessive permissions detected: '+edit);
+		System.assertEquals(d.size(), 0, 'snapshot delete excessive permissions detected: '+d);
+		System.assertEquals(viewAll.size(), 0, 'snapshot viewAll excessive permissions detected: '+viewAll);
+		System.assertEquals(modifyAll.size(), 0, 'snapshot modifyAll excessive permissions detected: '+modifyAll);
+		
+		}
+	}
 }
