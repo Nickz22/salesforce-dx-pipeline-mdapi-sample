@@ -74,15 +74,16 @@ public class initAuditReview {
 			// create permission snapshot records
 			System.enqueueJob(new initPermissionSnapshots(nameToPermissionMap));
 
-			// to update User_Permission_Snapshot__c.System_Permissions__c, return new User Permission Snapshots    
+			// to update User_Permissions_Snapshot__c.System_Permissions__c, return new User Permission Snapshots    
 			Map<Id, User_Permissions_Snapshot__c> newSnapshots = initAuditUtility.newSnapshotPermissions(nameToPermissionMap);
 
 			// init batch container
 			Map<Id, User_Permissions_Snapshot__c> batchedSnapshots = new Map<Id, User_Permissions_Snapshot__c>();	       
 			 
 			// queue batch update
-	    System.enqueueJob(new getSnapshotSystemPermissions(batchedSnapshots, newSnapshots));
+	    	System.enqueueJob(new getSnapshotSystemPermissions(batchedSnapshots, newSnapshots));
 
+			List<User_Permissions_Snapshot__c> u = [SELECT System_Permissions__c FROM User_Permissions_Snapshot__c];
 		}
 	}
 }

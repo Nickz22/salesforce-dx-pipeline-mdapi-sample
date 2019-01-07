@@ -145,7 +145,7 @@ public class InitAuditUtility {
 
 			// get parent PermSetId
 			loopVar = pSa.PermissionSetId;
-			
+
 			// this will hold Id of Assignee
 			Map<String,String> userIdMap = new Map<String,String>();
 
@@ -498,7 +498,7 @@ public class InitAuditUtility {
 							if(snapshot.System_Permissions__c != null && !(snapshot.System_Permissions__c.contains(label))){
 
 								// add this label to field
-								snapshot.System_Permissions__c += label+ '; ';	
+								snapshot.System_Permissions__c += label+ '; ';
 
 							}else if(snapshot.System_Permissions__c == null){
 
@@ -509,12 +509,34 @@ public class InitAuditUtility {
 					}
 				}
 			}
-
 			// add updated snapshot to update list
 			updateSnapshots.add(snapshot);
 		}
 
 		update updateSnapshots;
+		/*
+		* validate System_Permissions__c via PermissionSet in test context
+		 */
+		if(Test.isRunningTest()){
+
+			for(User_Permissions_Snapshot__c u : updateSnapshots){
+
+				for(PermissionSetAssignment p : assignments.values()){
+								
+					// found user
+					if(p.PermissionSetId == u.User__c){
+						
+						// get PermissionSet via PermissionSetAssignment
+						PermissionSet pS = allPermissionSets.get(p.PermissionSetId);
+
+						// check in-scope system permissions as defined by homeLaunchPermissions var
+						if(pS.PermissionsEmailSingle) System.assertEquals(u.System_Permissions__c.contains('Send Email'), true, 'snapshot System_Permissions__c inconsistency detected');
+						if(pS.PermissionsEmailMass) System.assertEquals(u.System_Permissions__c.contains('Mass Email'), true, 'snapshot System_Permissions__c inconsistency detected');
+						if(pS.PermissionsEditTask) System.assertEquals(u.System_Permissions__c.contains('Edit Tasks'), true, 'snapshot System_Permissions__c inconsistency detected');
+					}
+				}
+			}
+		}
 	}	
 	
 	/*

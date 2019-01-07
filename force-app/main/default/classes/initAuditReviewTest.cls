@@ -21,6 +21,11 @@ private class initAuditReviewTest {
 		// get active users
 		List<User> activeUsers = [SELECT Id, Profile.Name FROM User WHERE IsActive = TRUE AND Profile.Name != null];
 
+		// get active user's PermissionSets
+		Map<Id, PermissionSet> pSets = new Map<Id, PermissionSet>([SELECT Id, PermissionsEmailSingle, PermissionsEmailMass, PermissionsEditTask 
+									   FROM PermissionSet
+									   WHERE Id IN (SELECT PermissionSetId FROM PermissionSetAssignment WHERE Assignee.IsActive = true)]);
+
 		// get active user PermissionSetAssignments
 		List<PermissionSetAssignment> assignments = [SELECT PermissionSetId, AssigneeId FROM PermissionSetAssignment WHERE Assignee.IsActive = true];
 
@@ -78,9 +83,7 @@ private class initAuditReviewTest {
 			}
 		}
 
-		/* 
-		  * ObjectPermissions -->  User_Permissions_Snapshot__c validation
-		 */
+		// validate object permissions
 		for(User_Permissions_Snapshot__c u : snapshots.values()){
 			
 			// containers for snapshot fields
@@ -102,9 +105,7 @@ private class initAuditReviewTest {
 
 						// isolate ObjectPermissions type
 						String type = o.SobjectType;
-						System.debug('this type is: '+type);
-						System.debug('this ObjectPermission Id: '+o.Id);
-
+						
 						// assert snapshot fields based on ObjectPermission fields
 						if(o.PermissionsRead){
 							
@@ -184,17 +185,16 @@ private class initAuditReviewTest {
 					}
 				}
 			}
-		/*
-		* validate User_Permission_Snapshot__c 
-		 * for excessive permissions.
-		*/
-		System.assertEquals(read.size(), 0, 'snapshot read excessive permissions detected: '+read);
-		System.assertEquals(create.size(), 0, 'snapshot create excessive permissions detected: '+create);
-		System.assertEquals(edit.size(), 0, 'snapshot edit excessive permissions detected: '+edit);
-		System.assertEquals(d.size(), 0, 'snapshot delete excessive permissions detected: '+d);
-		System.assertEquals(viewAll.size(), 0, 'snapshot viewAll excessive permissions detected: '+viewAll);
-		System.assertEquals(modifyAll.size(), 0, 'snapshot modifyAll excessive permissions detected: '+modifyAll);
-		
+			/*
+			* validate User_Permissions_Snapshot__c 
+			* for excessive permissions.
+			*/
+			System.assertEquals(read.size(), 0, 'snapshot read excessive permissions detected: '+read);
+			System.assertEquals(create.size(), 0, 'snapshot create excessive permissions detected: '+create);
+			System.assertEquals(edit.size(), 0, 'snapshot edit excessive permissions detected: '+edit);
+			System.assertEquals(d.size(), 0, 'snapshot delete excessive permissions detected: '+d);
+			System.assertEquals(viewAll.size(), 0, 'snapshot viewAll excessive permissions detected: '+viewAll);
+			System.assertEquals(modifyAll.size(), 0, 'snapshot modifyAll excessive permissions detected: '+modifyAll);
 		}
 	}
 }

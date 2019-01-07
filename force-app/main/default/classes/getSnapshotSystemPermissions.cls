@@ -6,8 +6,8 @@ public class getSnapshotSystemPermissions implements Queueable {
 
 	public getSnapshotSystemPermissions(Map<Id, User_Permissions_Snapshot__c> batchedSnapshots , Map<Id, User_Permissions_Snapshot__c> allNewSnapshots){
 
-		this.allNewSnapshots = allNewSnapshots;
 		this.batchedSnapshots = batchedSnapshots;
+		this.allNewSnapshots = allNewSnapshots;
 	}
 
 	public void execute(QueueableContext context) {
@@ -52,7 +52,7 @@ public class getSnapshotSystemPermissions implements Queueable {
 						break;
 				}
 
-			}else {
+			}else{
 
 				// update snapshot batch
 				initAuditUtility.updateSystemPermissions(allNewSnapshots);
@@ -65,7 +65,7 @@ public class getSnapshotSystemPermissions implements Queueable {
 		// find only metadata instance which holds Id of Access_Check_Configuration__c associated with this check
 		D_V__Access_Configuration_Id__c thisConfigId = [SELECT Name, D_V__Value__c FROM D_V__Access_Configuration_Id__c];
 
-		// hard delete unnecessary custom setting
+		// hard delete custom setting
 		delete thisConfigId;
 		Database.emptyRecycleBin(thisConfigId);
 	}
