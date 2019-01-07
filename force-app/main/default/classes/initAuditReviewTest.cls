@@ -21,7 +21,7 @@ private class initAuditReviewTest {
 		// get active users
 		List<User> activeUsers = [SELECT Id, Profile.Name FROM User WHERE IsActive = TRUE AND Profile.Name != null];
 
-		// get active user's PermissionSets
+		// get active user's (w/ profiles) PermissionSets
 		Map<Id, PermissionSet> pSets = new Map<Id, PermissionSet>([SELECT Id, PermissionsEmailSingle, PermissionsEmailMass, PermissionsEditTask 
 									   FROM PermissionSet
 									   WHERE Id IN (SELECT PermissionSetId FROM PermissionSetAssignment WHERE Assignee.IsActive = true)]);
@@ -35,14 +35,13 @@ private class initAuditReviewTest {
 		// get in-scope objects, defined by In_Scope_Object_mdt
 		Map<String, String> scopedObjMap = initAuditUtility.getInScopeMap();
 
-		// get active users ObjectPermissions
+		// get active user's ObjectPermissions
 		List<ObjectPermissions> objPerms = [SELECT SObjectType, ParentId, PermissionsRead, PermissionsCreate, PermissionsEdit, PermissionsDelete, PermissionsModifyAllRecords, PermissionsViewAllRecords
 				 							  FROM ObjectPermissions
 				 							 WHERE ParentId IN (SELECT PermissionSetId FROM PermissionSetAssignment WHERE Assignee.IsActive = true) 
 											  AND SobjectType IN: scopedObjMap.keyset()];
-
+		
 		Map<Id, List<ObjectPermissions>> userToPermission = new Map<Id, List<ObjectPermissions>>();
-
 		List<ObjectPermissions> lo = new List<ObjectPermissions>();
 		String uId;
 
@@ -51,6 +50,7 @@ private class initAuditReviewTest {
 
 			// refresh our list container
 			lo = new List<ObjectPermissions>();
+
 			// keep assigneeId
 			uId = p.AssigneeId;
 
@@ -111,14 +111,11 @@ private class initAuditReviewTest {
 							
 							// ensure snapshot reflects permissions in ObjectPermission
 							System.assertEquals(true, u.Read_Access__c.contains(type), '<---- snapshot read field inconsistency detected ----> \n ObjectPermission read: '+o.PermissionsRead+'\n snapshot read: '+u.Read_Access__c);
-
-							/*
-							* explanation of validation method involving removing values from String representation of snapshot fields ☞ 4513e9a0-9197-4fc2-8101-5bbb864bcce3
-							 */
-
-							/*
+						    /*
+							* explanation of why we're removing values from String representation of snapshot fields ☞ 4513e9a0-9197-4fc2-8101-5bbb864bcce3
+							 *
 							* check if this type has already been removed - this will be true if an ObjectPermission has already
-							* granted this level of access. In this case, we don't need to re-remove the type.
+							 * granted this level of access. In this case, we don't need to re-remove the type.
 							*/
 							if(read.indexOf(type) != -1){
 
@@ -187,7 +184,7 @@ private class initAuditReviewTest {
 			}
 			/*
 			* validate User_Permissions_Snapshot__c 
-			* for excessive permissions.
+			 * for excessive object permissions.
 			*/
 			System.assertEquals(read.size(), 0, 'snapshot read excessive permissions detected: '+read);
 			System.assertEquals(create.size(), 0, 'snapshot create excessive permissions detected: '+create);

@@ -55,17 +55,15 @@ public class initAuditReview {
 		// initialize container for user's permissions
 		Map<Map<String, String>, List<Map<String, String>>> nameToPermissionMap = new Map<Map<String, String>, List<Map<String, String>>>();
 
+		// check for test context
 		if(!Test.isRunningTest()){
 
 			// aggregate object-permissions at user level
 			System.enqueueJob(new aggregateObjectPermissions(allObjectPermissions, permSetAssignments, nameToPermissionMap));
 
 		}else{
-			/*
-			  * only runs during test
-			 */
 
-			// dummy call queueable
+			// dummy call queueable for code coverage
 			System.enqueueJob(new aggregateObjectPermissions(allObjectPermissions, permSetAssignments, nameToPermissionMap));
 
 			// execute aggregateObjectPermissions logic
@@ -80,10 +78,8 @@ public class initAuditReview {
 			// init batch container
 			Map<Id, User_Permissions_Snapshot__c> batchedSnapshots = new Map<Id, User_Permissions_Snapshot__c>();	       
 			 
-			// queue batch update
+			// queue batch update --> also validates System_Permissions__c values in test context
 	    	System.enqueueJob(new getSnapshotSystemPermissions(batchedSnapshots, newSnapshots));
-
-			List<User_Permissions_Snapshot__c> u = [SELECT System_Permissions__c FROM User_Permissions_Snapshot__c];
 		}
 	}
 }
