@@ -1,7 +1,11 @@
 @isTest (SeeAllData=false)
 private class initAuditReviewTest {
 
+	// initialize test system permissions
 	static final List<String> homeLaunchPermissions = new List<String>{'Send Email', 'Mass Email', 'Edit Tasks'};
+
+	// initialize api name => label map of in scope objects
+	static final Map<String, String> scopedMap = initAuditUtility.getInScopeMap();
 
 	/*
    * @author          Nick Zozaya
@@ -104,7 +108,9 @@ private class initAuditReviewTest {
 					for(ObjectPermissions o : userToPermission.get(assignee)){
 
 						// isolate ObjectPermissions type
-						String type = o.SobjectType;
+						String type = scopedMap.get(o.SobjectType);
+
+						System.assertEquals(type == null, false, 'type not found in scopedMap');
 						
 						// assert snapshot fields based on ObjectPermission fields
 						if(o.PermissionsRead){
