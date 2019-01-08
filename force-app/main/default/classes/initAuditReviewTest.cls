@@ -110,7 +110,7 @@ private class initAuditReviewTest {
 						if(o.PermissionsRead){
 							
 							// ensure snapshot reflects permissions in ObjectPermission
-							System.assertEquals(true, u.Read_Access__c.contains(type), '<---- snapshot read field inconsistency detected ----> \n ObjectPermission read: '+o.PermissionsRead+'\n snapshot read: '+u.Read_Access__c);
+							System.assertEquals(true, u.Read_Access__c.contains(type), '<---- snapshot read field inconsistency detected ----> ObjectPermission read: '+o.PermissionsRead+' snapshot read: '+u.Read_Access__c);
 						    /*
 							* explanation of why we're removing values from String representation of snapshot fields ☞ 4513e9a0-9197-4fc2-8101-5bbb864bcce3
 							 *

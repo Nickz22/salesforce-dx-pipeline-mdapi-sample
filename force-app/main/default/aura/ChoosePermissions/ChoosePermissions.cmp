@@ -5,11 +5,6 @@
     <aura:attribute name="permissions" type="List"/>
     <aura:attribute name="showSelectedPermissions" type="Boolean" default="false"/>
     <aura:attribute name="values" type="List"/>
-    <aura:attribute name="scrollerDivTop" type="Integer"/>
-    <aura:attribute name="scrollerDivTopSet" type="Boolean" default="false"/>
-    <aura:attribute name="scrollerDivLeft" type="Integer"/>
-    <aura:attribute name="scrollerDivBottom" type="Integer"/>
-    <aura:attribute name="dynamicStyles" type="String"/>
     <aura:attribute name="chosenPerms" type="String[]" default="selected permissions will appear here"/>
     <aura:attribute name="headerTitle" type="Aura.Component[]">
             <p class="slds-text-heading_small"><b>Access Checker Setup {!v.recordId}</b> </p>
@@ -24,13 +19,13 @@
                         <p>Complete the below 3 steps <b>in the given order</b> to run the Access Checker app:</p><br/>
                         <ol class="slds-list--ordered">			
                             <li>
-                                Create an instance of the <b>In-Scope Objects</b> custom metadata type for each object you'd like included in your access evaluation.
+                                Create an instance of the <b>In-Scope Objects</b> (In_Scope_Objects_mdt) custom metadata type for each object you'd like included in your access evaluation.
                             </li>
                             <li>
-                                Choose which System Permissions you'd like to include in your access evaluation below. An <b>Access Check Configuration</b> record will be created for easy re-running of the Access Checker app using the same System Permissions selections.
+                                Choose which System Permissions you'd like to include in your access evaluation below. An <b>Access Check Configuration</b> (Access_Check_Configuration__c) record will be created for easy re-running of the Access Checker app using the same System Permissions selections.
                             </li>
                             <li>
-                                Click the <b>Launch Access Checker</b> button below to create User Permission Snapshots for each active User in your org.
+                                Click the <b>Launch Access Checker</b> button below to create <b>User Permission Snapshots</b> (User_Permissions_Snapshot__c) for each active User in your org.
                             </li>
                         </ol>
                     </div>
@@ -44,7 +39,7 @@
                                                     required="false"
                                                     aura:id="myGroup"/>
                         </div>
-                        <div class="slds-col slds-size_4-of-10 slds-p-top_medium" style="{! 'top: '+ v.scrollerDivTop + 'px; left: ' + v.scrollerDivLeft + 'px; ' + v.dynamicStyles + ';' }" aura:id="selected-permissions">
+                        <div class="slds-col slds-size_4-of-10 slds-p-top_medium">
                             <b>Selected Permissions</b>
                             <aura:iteration items="{!v.chosenPerms}" var="p">
                                 <p class="slds-text-body_small">{!p}</p>
