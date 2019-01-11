@@ -1,6 +1,13 @@
 <aura:component implements="flexipage:availableForAllPageTypes, force:appHostable, force:hasRecordId" controller="initAuditReview">
     <aura:handler name="init" value="{!this}" action="{!c.getPermSetFields}"/>
     <!--recordId will inform system if component is being rendered in Access_Check_Configuration__c record page-->
+
+
+
+    <!--
+        TO DO: 
+        refactor component content into different components
+    -->
     <aura:attribute name="recordId" type="String" default=""/>
     <aura:attribute name="permissions" type="List"/>
     <aura:attribute name="showSelectedPermissions" type="Boolean" default="false"/>
